@@ -1,13 +1,13 @@
 # GitFetch
 
-Fetch GitHub releases on an Amiga.
+Fetch GitHub releases on an Amiga, without any hassle.
 
-Nearly all new Amiga software is published through GitHub Releases, which
-is awkward on the machine itself: no browser for the platform can handle
-the CSS and JavaScript the site relies on. Getting to the newest `.lha`
-usually means walking over to a modern computer.
+Nearly all new Amiga software is published through GitHub releases, which
+is awkward since there is no way to download the releases on the machine itself: no browser for the platform can handle
+the CSS and JavaScript Github.com relies on. Getting to the newest `.lha`
+usually means walking over to a modern computer and transfer it back to your Amiga (what is your method of choice?)
 
-GitFetch does that part for you. Type a GitHub address or `owner/repo`,
+GitFetch does that part for you. Type a GitHub address or `owner/repo`, 
 pick a release and a file, and it lands on your hard drive.
 
 It downloads, and nothing else. Unpacking and installing stay in your own
@@ -16,16 +16,16 @@ hands, with the tools you already trust.
 ![GitFetch on AmigaOS 3.9](images/main-window.jpg)
 
 Saved repositories on the left, releases in the middle, the files in that
-release on the right. Running on an A1200 with a Blizzard 060.
+release on the right. Running on an A1200 with a Blizzard 1260.
 
 ## Requirements
 
 - AmigaOS 3.5 or newer, for the ReAction classes
-- 68020 or better
+- Recommended: 68020 or better 
 - A screen of 640x400 or larger
 - A TCP/IP stack: Roadshow, AmiTCP, Miami or Genesis
 - [AmiSSL](https://github.com/jens-maus/amissl) 5 or newer
-- A correctly set system clock
+- A correctly set system clock (for the SSL negotiation to work)
 
 That last one is easy to overlook. An Amiga without a working
 battery-backed clock starts in 1978, and every TLS certificate then looks
@@ -34,13 +34,12 @@ about dates. GitFetch checks the date before connecting and says so
 plainly. It does not set the clock itself; that belongs to a proper time
 program such as the NTP client built into Roadshow.
 
-## Two ways to reach GitHub
+## Two ways to reach GitHub with GitFetch
 
-GitHub only speaks HTTPS, which an Amiga cannot do on its own. There are
-two answers, switchable in the settings.
+There are two options to download from your favorite repo, switchable in the settings.
 
-**Directly, through AmiSSL.** No server of your own. GitHub sends its full
-reply — around 240 KB for 25 releases, mostly release notes that get
+**Directly, through AmiSSL.** No server of your own needed. GitHub sends its full
+reply (around 240 KB for 25 releases), mostly release notes that get
 thrown away — and all of it passes through TLS decryption on a 68k.
 
 **Through a proxy.** A small Python script, included, using only the
@@ -115,9 +114,9 @@ AmiSSL, which is what makes the direct connection work in the first place.
 
 ## Thanks
 
-Jens Maus and everyone behind AmiSSL. Amiga Cafe, <https://amiga.cafe>.
-RVO, for my Amiga revival. Darren Banfi, whose Mint projects started this.
-And every (vibe) coder still keeping our oldest girlfriend alive.
+Jens Maus and everyone behind AmiSSL, Everyone at the Amiga Cafe <https://amiga.cafe>,
+RVO for my Amiga revival. Darren Banfi, whose [Mint projects](https://github.com/boingball) started this, 
+and every (vibe) coder still keeping our old girlfriend alive. And you for using it! 
 
 ## Licence
 
