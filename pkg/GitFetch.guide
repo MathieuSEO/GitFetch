@@ -6,13 +6,14 @@
 @node MAIN "GitFetch 0.1"
 
                @{b}GitFetch 0.1@{ub}
-               Fetch GitHub releases on AmigaOS
+               Fetch GitHub releases on an Amiga,
+               without any hassle
 
     @{" What it does    " link ABOUT}
     @{" Requirements    " link REQUIRE}
     @{" Installation    " link INSTALL}
     @{" Using it        " link USING}
-    @{" Two ways to connect " link BACKENDS}
+    @{" Two ways to reach GitHub " link BACKENDS}
     @{" Settings        " link SETTINGS}
     @{" The proxy       " link PROXY}
     @{" Troubleshooting " link TROUBLE}
@@ -25,13 +26,15 @@
 
 @{b}What it does@{ub}
 
-Nearly all new Amiga software is published through GitHub Releases. That
-is awkward on an Amiga: no browser for the platform can handle the CSS and
-JavaScript the site relies on, so getting to the newest .lha means finding
-someone with a modern machine.
+Nearly all new Amiga software is published through GitHub releases, which
+is awkward since there is no way to download the releases on the machine
+itself: no browser for the platform can handle the CSS and JavaScript
+Github.com relies on. Getting to the newest .lha usually means walking
+over to a modern computer and transfer it back to your Amiga (what is
+your method of choice?)
 
-GitFetch does that part for you. Type a GitHub address or owner/repo, pick
-a release and a file, and it lands on your hard drive.
+GitFetch does that part for you. Type a GitHub address or owner/repo,
+pick a release and a file, and it lands on your hard drive.
 
 It downloads, and nothing else. Unpacking and installing stay in your own
 hands, with the tools you already trust.
@@ -43,34 +46,27 @@ hands, with the tools you already trust.
 @{b}Requirements@{ub}
 
     AmigaOS 3.5 or newer     for the ReAction classes
-    68020 or better
-    A screen of 640x400      smaller gets too cramped to be useful
+    Recommended: 68020 or better
+    A screen of 640x400 or larger
     A TCP/IP stack           Roadshow, AmiTCP, Miami or Genesis
-    About 300 KB of free memory
-
-For a direct connection to GitHub you also need:
-
-    AmiSSL 5 or newer        available on Aminet
-    A correctly set clock    see below
+    AmiSSL 5 or newer        from Aminet
+    A correctly set clock    for the SSL negotiation to work
 
 @{b}About the clock@{ub}
 
-An Amiga without a working battery-backed clock starts in 1978. Every TLS
-certificate then looks "not yet valid" and the connection fails, with an
-error that says nothing about dates. It is worth checking before you go
-looking elsewhere.
-
-GitFetch checks the date before connecting and says so if it looks wrong.
-It does not set the clock itself; that belongs to a proper time program,
-such as the NTP client built into Roadshow, or SNTP from Aminet. Setting
-the system clock is a system-wide matter, and one program doing it behind
-another's back causes more trouble than it solves.
+That last one is easy to overlook. An Amiga without a working
+battery-backed clock starts in 1978, and every TLS certificate then looks
+"not yet valid", so the connection fails with an error that says nothing
+about dates. GitFetch checks the date before connecting and says so
+plainly. It does not set the clock itself; that belongs to a proper time
+program such as the NTP client built into Roadshow.
 
     date                       to check
-    date 21-aug-26 17:00:00    to correct
+    date 24-aug-26 12:00:00    to correct
 
 Without AmiSSL, or without a reliable clock, you can still use GitFetch
-through a proxy: that side needs neither. @{" More about that " link BACKENDS}
+through a proxy: that side needs neither.
+@{" More about that " link BACKENDS}
 
 @endnode
 
@@ -102,14 +98,15 @@ one per line. You can edit it by hand or copy it to another Amiga.
 
 @{b}Fetching@{ub}
 
-Type into the Repository field. All of these work:
+Type into the Repository field, or paste whatever you have. All of these
+work:
 
     owner/repo
     github.com/owner/repo
     https://github.com/owner/repo
     https://github.com/owner/repo/releases/latest
 
-Anything after the repository name is ignored, so pasting a link from a
+Anything after the repository name is ignored, so a link straight out of a
 forum post is fine. Press Fetch, or hit Return in the field.
 
 @{b}Downloading@{ub}
@@ -143,31 +140,35 @@ a great deal of traffic. @{" Why that matters " link BACKENDS}
 
 @endnode
 
-@node BACKENDS "Two ways to connect"
+@node BACKENDS "Two ways to reach GitHub"
 
-@{b}Two ways to connect@{ub}
+@{b}Two ways to reach GitHub with GitFetch@{ub}
 
-GitHub only speaks HTTPS, which an Amiga cannot do on its own. GitFetch
-offers two answers.
+There are two options to download from your favorite repo, switchable in
+the settings.
 
 @{b}Directly, through AmiSSL@{ub}
 
-No server of your own, but it needs AmiSSL 5 and a correct clock. GitHub
-sends its full reply: about 240 KB for twenty-five releases, mostly
-release notes that get thrown away. All of that has to pass through TLS
-decryption on a 68k, so it takes a while.
+No server of your own needed. GitHub sends its full reply (around 240 KB
+for 25 releases), mostly release notes that get thrown away -- and all of
+it passes through TLS decryption on a 68k.
 
 @{b}Through a proxy@{ub}
 
-A small script on a server of your own turns the same reply into about
-5 KB of plain text, already converted to the Amiga character set, and
-remembers it briefly so you do not run into GitHub's limit of sixty
-requests per hour.
+A small Python script, included, using only the standard library. It turns
+the same reply into about 5 KB of plain text, already converted to the
+Amiga character set, and caches it so GitHub's limit of 60 requests per
+hour is not an issue. Faster and lighter, but it only works while that
+server runs.
 
-Faster and lighter, but it only works while that server is running.
 @{" Setting one up " link PROXY}
 
-You can switch between them at any time in the settings.
+The setting for how many releases to fetch matters most on a direct
+connection: "latest" costs a fraction of "all".
+
+Fields that do not apply to your choice are greyed out: with a direct
+connection the proxy details are irrelevant, and the other way round the
+certificate check is.
 
 @endnode
 
@@ -294,18 +295,12 @@ Built with bebbo's amiga-gcc and the AmigaOS 3.9 NDK.
 
 @{b}With thanks to@{ub}
 
-Jens Maus and everyone behind AmiSSL, which wraps OpenSSL as an Amiga
-shared library and makes the direct connection possible at all.
+Jens Maus and everyone behind AmiSSL. Everyone at the Amiga Cafe,
+@{"https://amiga.cafe" system "URLOpen https://amiga.cafe"}
 
-Amiga Cafe, @{"https://amiga.cafe" system "URLOpen https://amiga.cafe"}
-
-RVO, for my Amiga revival: he is the reason this machine runs at all.
-
-Darren Banfi, whose Mint projects started this. Wanting to help out with
-those is how GitFetch came about.
-
-And every (vibe) coder still keeping our oldest girlfriend alive. That the
-machine is still worth writing new software for is entirely down to them.
+RVO for my Amiga revival. Darren Banfi, whose Mint projects started this,
+and every (vibe) coder still keeping our old girlfriend alive. And you for
+using it!
 
 @{b}Copyright@{ub}
 

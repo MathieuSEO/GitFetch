@@ -172,7 +172,9 @@ check-dist:
 			echo ""; \
 			echo "LET OP: dist/$$f wijkt af van $$src."; \
 			echo "dist/ wordt opnieuw opgebouwd en die wijziging gaat verloren."; \
-			echo "Neem hem eerst over in $$src, of maak een kopie."; \
+			echo ""; \
+			echo "Is dat handwerk van jou? Neem het over in $$src."; \
+			echo "Is pkg/ juist nieuwer? Dan kan dist/ weg:  rm -rf dist"; \
 			echo ""; \
 			exit 1; \
 		fi; \
@@ -180,7 +182,9 @@ check-dist:
 	@if [ -f dist/GitFetch.readme ] && ! cmp -s dist/GitFetch.readme pkg/GitFetch.readme; then \
 		echo ""; \
 		echo "LET OP: dist/GitFetch.readme wijkt af van pkg/GitFetch.readme."; \
-		echo "Neem de wijziging eerst over in pkg/."; \
+		echo ""; \
+		echo "Is dat handwerk van jou? Neem het over in pkg/."; \
+		echo "Is pkg/ juist nieuwer? Dan kan dist/ weg:  rm -rf dist"; \
 		echo ""; \
 		exit 1; \
 	fi

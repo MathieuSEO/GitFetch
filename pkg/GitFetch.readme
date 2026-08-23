@@ -8,16 +8,18 @@ Requires:     OS 3.5+ for ReAction; bsdsocket.library; AmiSSL 5;
 Architecture: m68k-amigaos >= 3.5
 Distribution: Aminet
 
-GitFetch -- fetch GitHub releases on an Amiga
-=============================================
+GitFetch -- fetch GitHub releases on an Amiga, without any hassle
+================================================================
 
-Nearly all new Amiga software is published through GitHub Releases, which
-is awkward on the machine itself: no browser for the platform can handle
-the CSS and JavaScript the site relies on. Getting to the newest .lha
-usually means walking over to a modern computer.
+Nearly all new Amiga software is published through GitHub releases, which
+is awkward since there is no way to download the releases on the machine
+itself: no browser for the platform can handle the CSS and JavaScript
+Github.com relies on. Getting to the newest .lha usually means walking
+over to a modern computer and transfer it back to your Amiga (what is
+your method of choice?)
 
-GitFetch does that part for you. Type a GitHub address or owner/repo, pick
-a release and a file, and it lands on your hard drive.
+GitFetch does that part for you. Type a GitHub address or owner/repo,
+pick a release and a file, and it lands on your hard drive.
 
 It downloads, and nothing else. Unpacking and installing stay in your own
 hands, with the tools you already trust.
@@ -43,44 +45,44 @@ WHAT IT DOES
   - English interface, ready for translation through locale catalogs
 
 
-TWO WAYS TO REACH GITHUB
+TWO WAYS TO REACH GITHUB WITH GITFETCH
 
-GitHub speaks only https, which an Amiga cannot do on its own. There are
-two answers, and you switch between them in the settings.
+There are two options to download from your favorite repo, switchable in
+the settings.
 
-Directly, through AmiSSL 5. No server of your own needed. GitHub sends its
-full reply -- around 240 KB for 25 releases, most of it release notes that
-get thrown away -- and all of it passes through TLS decryption on a 68k.
-Set "Fetch releases" to "latest" and that drops to a fraction.
+Directly, through AmiSSL. No server of your own needed. GitHub sends its
+full reply (around 240 KB for 25 releases), mostly release notes that get
+thrown away -- and all of it passes through TLS decryption on a 68k.
 
-Or through a proxy. A small Python script, included in this archive, that
-needs nothing beyond the standard library. It turns the same reply into
-about 5 KB of plain text, already converted to the Amiga character set,
-and remembers it briefly so you do not run into GitHub's limit of sixty
-requests per hour. Faster and lighter, but it only works while that
-machine is running.
+Through a proxy. A small Python script, included, using only the standard
+library. It turns the same reply into about 5 KB of plain text, already
+converted to the Amiga character set, and caches it so GitHub's limit of
+60 requests per hour is not an issue. Faster and lighter, but it only
+works while that server runs.
+
+The setting for how many releases to fetch matters most on a direct
+connection: "latest" costs a fraction of "all".
+
+Fields that do not apply to your choice are greyed out: with a direct
+connection the proxy details are irrelevant, and the other way round the
+certificate check is.
 
 
 REQUIREMENTS
 
   - AmigaOS 3.5 or newer, for the ReAction classes
-  - a 68020 or better
-  - a screen of 640x400 or larger; smaller gets too cramped
-  - a TCP/IP stack offering bsdsocket.library -- Roadshow, AmiTCP,
-    Miami or Genesis
-  - AmiSSL 5 or newer, from Aminet, for the direct connection
-  - a correctly set system clock
+  - Recommended: 68020 or better
+  - A screen of 640x400 or larger
+  - A TCP/IP stack: Roadshow, AmiTCP, Miami or Genesis
+  - AmiSSL 5 or newer, from Aminet
+  - A correctly set system clock, for the SSL negotiation to work
 
-That last one is easy to overlook and worth spelling out. An Amiga without
-a working battery-backed clock starts in 1978, and every TLS certificate
-then looks "not yet valid", so the connection fails. The error OpenSSL
-reports says nothing about dates, which makes it a puzzling one to run
-into. GitFetch checks the date before connecting and tells you plainly if
-it is wrong.
-
-It does not set the clock itself: that is a job for a proper time program,
-such as the NTP client built into Roadshow, or SNTP from Aminet. To check
-and correct by hand:
+That last one is easy to overlook. An Amiga without a working
+battery-backed clock starts in 1978, and every TLS certificate then looks
+"not yet valid", so the connection fails with an error that says nothing
+about dates. GitFetch checks the date before connecting and says so
+plainly. It does not set the clock itself; that belongs to a proper time
+program such as the NTP client built into Roadshow.
 
     date
     date 24-aug-26 12:00:00
@@ -110,6 +112,14 @@ KNOWN BUGS
 None yet. If you find one, please report it with your AmigaOS version,
 your TCP/IP stack, and whether you were using a direct connection or the
 proxy. Those three narrow it down considerably.
+
+
+THANKS
+
+Jens Maus and everyone behind AmiSSL, everyone at the Amiga Cafe
+(https://amiga.cafe), RVO for my Amiga revival, Darren Banfi whose Mint
+projects started this, and every (vibe) coder still keeping our old
+girlfriend alive. And you for using it!
 
 
 LICENCE
