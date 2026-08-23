@@ -42,7 +42,12 @@ AMIGA_CFLAGS := -m68020 -Os -noixemul -Wall -Wextra -Wno-pointer-sign \
                 -ffunction-sections -fdata-sections
 # --gc-sections gooit functies weg die nergens gebruikt worden; -s laat de
 # symbooltabel weg, die op de Amiga niets doet.
-AMIGA_LDFLAGS := -noixemul -Wl,--gc-sections -s
+#
+# -u _version_tag houdt de $VER:-string vast. Niets in de code verwijst
+# ernaar, dus zonder dit gooit --gc-sections hem weg en werkt het
+# version-commando niet meer. De underscore hoort erbij: dat is de
+# symboolconventie op m68k.
+AMIGA_LDFLAGS := -noixemul -Wl,--gc-sections -Wl,-u,_version_tag -s
 
 COMMON_SRC := src/parse.c src/url.c src/errors.c src/net.c src/json.c \
               src/backend.c src/backend_proxy.c src/backend_native.c \

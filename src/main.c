@@ -27,9 +27,17 @@
  */
 const char stack_size[] = "$STACK:65536";
 
-/* De $VER:-string hoort in elke Amiga-binary; het version-commando leest
-   hem hieruit. */
-const char version_tag[] = "$VER: GitFetch " GF_VERSION " (21.8.2026)";
+/*
+ * De $VER:-string hoort in elke Amiga-binary; het version-commando leest
+ * hem hieruit.
+ *
+ * Niets in de code verwijst naar deze variabele, dus --gc-sections zou
+ * hem weggooien en dan verdwijnt de string stilletjes uit de binary. De
+ * Makefile houdt hem vast met -Wl,-u,_version_tag; het used-attribuut
+ * alleen bleek daarvoor niet genoeg met deze binutils.
+ */
+const char version_tag[] =
+    "$VER: GitFetch " GF_VERSION " (23.8.2026)";
 
 int main(int argc, char **argv)
 {
