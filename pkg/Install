@@ -9,7 +9,7 @@
        "This will copy the GitFetch drawer to a place of your choosing."))
 
 (set #where
-  (cat "Where should GitFetch be installed?\n\n"
+  (cat "Where should GitFetch be installed?\n"
        "A drawer called GitFetch will be created there."))
 
 (set #no-os39

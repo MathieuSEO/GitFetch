@@ -295,12 +295,11 @@ Built with bebbo's amiga-gcc and the AmigaOS 3.9 NDK.
 
 @{b}With thanks to@{ub}
 
-Jens Maus and everyone behind AmiSSL. Everyone at the Amiga Cafe,
-@{"https://amiga.cafe" system "URLOpen https://amiga.cafe"}
+Jens Maus and everyone behind AmiSSL. Everyone at @{"https://amiga.cafe" system "URLOpen https://amiga.cafe"}
 
-RVO for my Amiga revival. Darren Banfi, whose Mint projects started this,
-and every (vibe) coder still keeping our old girlfriend alive. And you for
-using it!
+RVO for my Amiga revival. Darren Banfi, whose @{"Mint projects" system "URLOpen https://github.com/boingball"} started this,
+and every (vibe) coder still keeping our old girlfriend alive. And you
+for using it!
 
 @{b}Copyright@{ub}
 
