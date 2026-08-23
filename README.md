@@ -158,7 +158,7 @@ port.
 
 ## Thanks
 
-Jens Maus and everyone behind AmiSSL, Everyone at the <https://amiga.cafe>,
+Jens Maus and everyone behind AmiSSL, Everyone at the [Amiga.cafe](https://amiga.cafe),
 RVO for my Amiga revival. Darren Banfi, whose [Mint projects](https://github.com/boingball) started this, 
 and every (vibe) coder still keeping our old girlfriend alive. And you for using it! 
 
