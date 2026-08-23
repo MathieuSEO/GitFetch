@@ -1,80 +1,126 @@
 Short:        Fetch GitHub releases, ReAction GUI
-Author:       Mathieu Burgerhout
-Uploader:     Mathieu Burgerhout
+Author:       m.burgerhout@gmail.com (Mathieu Burgerhout)
+Uploader:     m burgerhout gmail com (Mathieu Burgerhout)
 Type:         comm/tcp
 Version:      0.1
+Requires:     OS 3.5+ for ReAction; bsdsocket.library; AmiSSL 5;
+              a correctly set clock
 Architecture: m68k-amigaos >= 3.5
-Requires:     OS 3.5+ (ReAction), 68020, 640x400 screen, TCP/IP stack,
-              AmiSSL 5, correctly set system clock
 Distribution: Aminet
 
+GitFetch -- fetch GitHub releases on an Amiga
+=============================================
+
 Nearly all new Amiga software is published through GitHub Releases, which
-is awkward on an Amiga: no browser for the platform can handle the CSS and
-JavaScript the site relies on. Getting to the newest .lha usually means
-walking over to a modern machine.
+is awkward on the machine itself: no browser for the platform can handle
+the CSS and JavaScript the site relies on. Getting to the newest .lha
+usually means walking over to a modern computer.
 
 GitFetch does that part for you. Type a GitHub address or owner/repo, pick
 a release and a file, and it lands on your hard drive.
 
-Features:
+It downloads, and nothing else. Unpacking and installing stay in your own
+hands, with the tools you already trust.
 
-  - ReAction interface; runs on a plain 640x256 PAL screen
-  - Saved repositories, kept in ENVARC: as plain text
-  - Choose how many releases to fetch, to keep traffic down
-  - Asks before overwriting an existing file, and warns when a volume
-    looks too full
-  - Downloads run in their own process, so the window stays responsive
-    and Stop works even during a slow transfer
-  - Warns about a wrongly set clock before TLS fails over it
 
-Two ways to reach GitHub:
+WHAT IT DOES
 
-  - Directly, using AmiSSL 5. No server of your own needed, but GitHub
-    sends its full reply (about 240 KB for 25 releases) and every byte
-    passes through TLS decryption on a 68k.
+  - a ReAction window with three lists: repositories you have saved,
+    the releases in one of them, and the files in that release
+  - saved repositories kept as plain text in ENVARC:, so you can edit the
+    list by hand or copy it to another Amiga
+  - accepts anything you paste: owner/repo, github.com/owner/repo, a full
+    https address, or a link that ends in /releases/latest
+  - choose how many releases to fetch, which keeps the traffic down
+  - asks before overwriting a file, and warns when the volume looks too
+    full to hold it
+  - downloads run in a process of their own, so the window stays
+    responsive and Stop works during a transfer; you can iconify it and
+    the download carries on
+  - checks the system clock before connecting, because a wrong date makes
+    TLS fail in a way that says nothing about dates
+  - remembers where you left the window
+  - English interface, ready for translation through locale catalogs
 
-  - Through a small proxy of your own. It turns the same reply into about
-    5 KB of plain text, already in the Amiga character set, and caches it
-    so GitHub's limit of 60 requests per hour is not an issue. The proxy
-    is a Python script using only the standard library and is included.
 
-It downloads, and nothing else; unpacking and installing stay in your own
-hands.
+TWO WAYS TO REACH GITHUB
 
-Requirements:
+GitHub speaks only https, which an Amiga cannot do on its own. There are
+two answers, and you switch between them in the settings.
+
+Directly, through AmiSSL 5. No server of your own needed. GitHub sends its
+full reply -- around 240 KB for 25 releases, most of it release notes that
+get thrown away -- and all of it passes through TLS decryption on a 68k.
+Set "Fetch releases" to "latest" and that drops to a fraction.
+
+Or through a proxy. A small Python script, included in this archive, that
+needs nothing beyond the standard library. It turns the same reply into
+about 5 KB of plain text, already converted to the Amiga character set,
+and remembers it briefly so you do not run into GitHub's limit of sixty
+requests per hour. Faster and lighter, but it only works while that
+machine is running.
+
+
+REQUIREMENTS
 
   - AmigaOS 3.5 or newer, for the ReAction classes
-  - 68020 or better
-  - A screen of 640x400 or larger; smaller gets too cramped
-  - A TCP/IP stack: Roadshow, AmiTCP, Miami or Genesis
-  - AmiSSL 5 or newer, from Aminet
-  - A correctly set system clock
+  - a 68020 or better
+  - a screen of 640x400 or larger; smaller gets too cramped
+  - a TCP/IP stack offering bsdsocket.library -- Roadshow, AmiTCP,
+    Miami or Genesis
+  - AmiSSL 5 or newer, from Aminet, for the direct connection
+  - a correctly set system clock
 
 That last one is easy to overlook and worth spelling out. An Amiga without
 a working battery-backed clock starts in 1978, and every TLS certificate
-then looks "not yet valid", so a direct connection to GitHub fails. The
-error OpenSSL reports says nothing about dates, which makes it a puzzling
-one to run into.
+then looks "not yet valid", so the connection fails. The error OpenSSL
+reports says nothing about dates, which makes it a puzzling one to run
+into. GitFetch checks the date before connecting and tells you plainly if
+it is wrong.
 
-GitFetch checks the date before connecting and tells you plainly if it is
-wrong. It does not set the clock itself: that is a job for a proper time
-program such as the NTP client built into Roadshow, or SNTP from Aminet.
-
-To check and correct by hand:
+It does not set the clock itself: that is a job for a proper time program,
+such as the NTP client built into Roadshow, or SNTP from Aminet. To check
+and correct by hand:
 
     date
-    date 21-aug-26 17:00:00
+    date 24-aug-26 12:00:00
 
 If you would rather not deal with AmiSSL or the clock at all, the included
-proxy is an alternative: it needs no TLS on the Amiga side and no correct
-clock, only a machine of your own to run it on.
+proxy needs neither.
 
-Full documentation is in the included AmigaGuide file.
 
-Source and new versions:
-https://github.com/MathieuSEO/GitFetch
+INSTALLING
 
-GitFetch can fetch its own updates: the repository is in the saved list
+Unpack and double-click Install, or copy the GitFetch drawer wherever you
+like -- it does not care where it lives. Copying by hand, set the
+executable bit yourself:
+
+    Protect GitFetch +e
+
+The archive format does not carry that bit, and without it the Shell
+refuses to start the program.
+
+Settings live in ENVARC:GitFetch/ and survive a reboot.
+
+Full documentation is in GitFetch.guide; open it with MultiView.
+
+
+KNOWN BUGS
+
+None yet. If you find one, please report it with your AmigaOS version,
+your TCP/IP stack, and whether you were using a direct connection or the
+proxy. Those three narrow it down considerably.
+
+
+LICENCE
+
+Freeware. Use it, share it, take it apart.
+
+Source, issues and newer versions:
+
+    https://github.com/MathieuSEO/GitFetch
+
+GitFetch can fetch its own updates: that repository is in the saved list
 from the start.
 
 (c) 2026 Mathieu Burgerhout

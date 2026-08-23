@@ -9,9 +9,12 @@
 #   make gitfetch alleen het GUI-programma
 #   make proxy    lokale proxy starten op poort 8099
 #   make dist    distributiepakket met icoon, guide en LhA-archief
+#   make aminet  hetzelfde, met de naamgeving die Aminet verwacht
 #   make clean
 
 # --- cross-compiler ---------------------------------------------------------
+VERSION := 0.1
+
 AMIGA_PREFIX ?= /opt/amiga
 CC_AMIGA     := $(AMIGA_PREFIX)/bin/m68k-amigaos-gcc
 
@@ -67,7 +70,7 @@ HOST_CFLAGS  := -std=c99 -Wall -Wextra -g -Itest/shim -Iinclude \
 HOST_SAN     := -fsanitize=undefined -fno-sanitize-recover=all
 BUILD        := build
 
-.PHONY: all dist test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
+.PHONY: all dist aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
 
 all: test
 
@@ -183,6 +186,25 @@ dist: amiga
 			GitFetch.info GitFetch.readme > /dev/null; \
 	fi
 	@echo "Klaar: dist/GitFetch.lha"
+
+# Zet het pakket klaar zoals Aminet het wil: archief en beschrijving apart,
+# met dezelfde basisnaam en het versienummer erin. De .readme wordt los
+# geupload en verschijnt op de pakketpagina.
+AMINET_NAME := GitFetch-$(VERSION)
+
+aminet: dist
+	@mkdir -p dist/aminet
+	cp dist/GitFetch.lha  dist/aminet/$(AMINET_NAME).lha
+	cp pkg/GitFetch.readme dist/aminet/$(AMINET_NAME).readme
+	@echo
+	@echo "Klaar voor Aminet in dist/aminet:"
+	@ls -l dist/aminet | tail -2
+	@echo
+	@echo "Uploaden met een FTP-client:"
+	@echo "  host : main.aminet.net"
+	@echo "  map  : /new"
+	@echo "  user : anonymous, wachtwoord: je e-mailadres"
+	@echo "Beide bestanden uploaden; de .readme hoort er los bij."
 
 clean:
 	rm -rf $(BUILD)
