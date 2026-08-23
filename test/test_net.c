@@ -45,6 +45,11 @@ int main(int argc, char **argv)
     }
 
     gf_prefs_defaults(&prefs);
+
+    /* De hostbuild heeft geen AmiSSL, dus deze test loopt altijd via de
+       proxy -- ongeacht wat de standaard op de Amiga is. */
+    prefs.backend = GF_BACKEND_PROXY;
+
     strncpy(prefs.host, argv[1], sizeof(prefs.host) - 1);
     prefs.port = (UWORD)atoi(argv[2]);
     if (argc > 5)
