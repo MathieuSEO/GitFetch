@@ -1,0 +1,314 @@
+@database GitFetch.guide
+@master GitFetch.guide
+@width 74
+@wordwrap
+
+@node MAIN "GitFetch 0.1"
+
+               @{b}GitFetch 0.1@{ub}
+               Fetch GitHub releases on AmigaOS
+
+    @{" What it does    " link ABOUT}
+    @{" Requirements    " link REQUIRE}
+    @{" Installation    " link INSTALL}
+    @{" Using it        " link USING}
+    @{" Two ways to connect " link BACKENDS}
+    @{" Settings        " link SETTINGS}
+    @{" The proxy       " link PROXY}
+    @{" Troubleshooting " link TROUBLE}
+    @{" Version history " link HISTORY}
+    @{" Author          " link AUTHOR}
+
+@endnode
+
+@node ABOUT "What it does"
+
+@{b}What it does@{ub}
+
+Nearly all new Amiga software is published through GitHub Releases. That
+is awkward on an Amiga: no browser for the platform can handle the CSS and
+JavaScript the site relies on, so getting to the newest .lha means finding
+someone with a modern machine.
+
+GitFetch does that part for you. Type a GitHub address or owner/repo, pick
+a release and a file, and it lands on your hard drive.
+
+It downloads, and nothing else. Unpacking and installing stay in your own
+hands, with the tools you already trust.
+
+@endnode
+
+@node REQUIRE "Requirements"
+
+@{b}Requirements@{ub}
+
+    AmigaOS 3.5 or newer     for the ReAction classes
+    68020 or better
+    A screen of 640x400      smaller gets too cramped to be useful
+    A TCP/IP stack           Roadshow, AmiTCP, Miami or Genesis
+    About 300 KB of free memory
+
+For a direct connection to GitHub you also need:
+
+    AmiSSL 5 or newer        available on Aminet
+    A correctly set clock    see below
+
+@{b}About the clock@{ub}
+
+An Amiga without a working battery-backed clock starts in 1978. Every TLS
+certificate then looks "not yet valid" and the connection fails, with an
+error that says nothing about dates. It is worth checking before you go
+looking elsewhere.
+
+GitFetch checks the date before connecting and says so if it looks wrong.
+It does not set the clock itself; that belongs to a proper time program,
+such as the NTP client built into Roadshow, or SNTP from Aminet. Setting
+the system clock is a system-wide matter, and one program doing it behind
+another's back causes more trouble than it solves.
+
+    date                       to check
+    date 21-aug-26 17:00:00    to correct
+
+Without AmiSSL, or without a reliable clock, you can still use GitFetch
+through a proxy: that side needs neither. @{" More about that " link BACKENDS}
+
+@endnode
+
+@node INSTALL "Installation"
+
+@{b}Installation@{ub}
+
+Double-click Install, or copy the GitFetch drawer anywhere you like; it
+does not care where it lives.
+
+If you copy it by hand, set the executable bit yourself:
+
+    Protect GitFetch +e
+    Protect gftest +e
+
+The archive format does not carry that bit, and without it the Shell
+refuses to start the program.
+
+Settings are kept in ENVARC:GitFetch/ and survive a reboot.
+
+The saved repositories are a plain text file in ENVARC:GitFetch/Bookmarks,
+one per line. You can edit it by hand or copy it to another Amiga.
+
+@endnode
+
+@node USING "Using it"
+
+@{b}Using it@{ub}
+
+@{b}Fetching@{ub}
+
+Type into the Repository field. All of these work:
+
+    owner/repo
+    github.com/owner/repo
+    https://github.com/owner/repo
+    https://github.com/owner/repo/releases/latest
+
+Anything after the repository name is ignored, so pasting a link from a
+forum post is fine. Press Fetch, or hit Return in the field.
+
+@{b}Downloading@{ub}
+
+Pick a release on the left; its files appear on the right. Pick a file,
+choose where it should go with "Save in", and press Download. The bar
+shows how far along it is, and Stop breaks it off cleanly.
+
+If a file of that name already exists you are asked before anything is
+overwritten. The same happens when the volume looks too full for the file
+to fit: you can still go ahead, but at least you were warned.
+
+The window has an iconify gadget in its title bar. Clicking it puts
+GitFetch away as an icon on Workbench; a running download simply carries
+on, because it happens in a process of its own.
+
+@{b}Saved repositories@{ub}
+
+The list starts with GitFetch itself, at MathieuSEO/GitFetch. Double-click
+it to see whether there is a newer version than the one you are running.
+
+Save puts whatever is in the Repository field into the list on the left.
+Click a saved entry to put it back in the field; double-click to fetch it
+straight away. Remove takes the selected one out again.
+
+@{b}How many releases@{ub}
+
+The chooser at the bottom decides how much is fetched: only the newest, or
+up to twenty-five. Fewer is faster, and over a direct connection it saves
+a great deal of traffic. @{" Why that matters " link BACKENDS}
+
+@endnode
+
+@node BACKENDS "Two ways to connect"
+
+@{b}Two ways to connect@{ub}
+
+GitHub only speaks HTTPS, which an Amiga cannot do on its own. GitFetch
+offers two answers.
+
+@{b}Directly, through AmiSSL@{ub}
+
+No server of your own, but it needs AmiSSL 5 and a correct clock. GitHub
+sends its full reply: about 240 KB for twenty-five releases, mostly
+release notes that get thrown away. All of that has to pass through TLS
+decryption on a 68k, so it takes a while.
+
+@{b}Through a proxy@{ub}
+
+A small script on a server of your own turns the same reply into about
+5 KB of plain text, already converted to the Amiga character set, and
+remembers it briefly so you do not run into GitHub's limit of sixty
+requests per hour.
+
+Faster and lighter, but it only works while that server is running.
+@{" Setting one up " link PROXY}
+
+You can switch between them at any time in the settings.
+
+@endnode
+
+@node SETTINGS "Settings"
+
+@{b}Settings@{ub}
+
+Open with the Settings menu, or right-Amiga+I.
+
+    Connect to GitHub directly   choose between the two ways above
+    Verify certificate           check you are really talking to GitHub
+    Proxy address, Port          only used when going through a proxy
+    Number of releases           how many to fetch at once
+
+Save writes them to ENVARC: so they survive a reboot. "Just now" applies
+them to this session only, and Cancel leaves everything as it was.
+
+Fields that do not apply to your choice are greyed out.
+
+Settings can also come from the icon's tooltypes (PROXYHOST, PROXYPORT,
+DESTDIR, MAXRELEASES, BACKEND) or from environment variables under
+GitFetch/ in ENV:. Environment variables win, so you can try something
+from the Shell without touching the icon.
+
+@endnode
+
+@node PROXY "The proxy"
+
+@{b}The proxy@{ub}
+
+The proxy is a small Python script; it needs nothing beyond the standard
+library. It runs on any machine that can reach both GitHub and your Amiga:
+a Linux server, a NAS, or the computer next to you.
+
+    python3 gitfetch_proxy.py
+
+By default it listens on 127.0.0.1 port 8080. To let your Amiga reach it:
+
+    GITFETCH_BIND=0.0.0.0 GITFETCH_PORT=8099 python3 gitfetch_proxy.py
+
+Then set that address and port in the GitFetch settings.
+
+One thing to watch when putting it behind a web server: it must serve
+plain HTTP. An Amiga without AmiSSL cannot follow a redirect to HTTPS, so
+any automatic redirect has to be switched off for that hostname.
+
+The full description is in README-proxy.md in the server drawer.
+
+@endnode
+
+@node TROUBLE "Troubleshooting"
+
+@{b}Troubleshooting@{ub}
+
+@{b}"The Amiga clock is wrong"@{ub}
+
+An Amiga without a working battery-backed clock starts in 1978. Every
+certificate then looks "not yet valid" and the connection fails. Check
+with @{b}date@{ub} and correct it:
+
+    date 21-aug-26 17:00:00
+
+@{b}"Cannot connect to the server"@{ub}
+
+Going through a proxy: is the script running, and is the address right?
+Try it from another machine first.
+
+Directly: can your Amiga resolve names? A proxy on a numeric address needs
+no name server, so this may be the first time it matters.
+
+@{b}"GitHub refused the request"@{ub}
+
+Without a token GitHub allows sixty requests per hour. Wait, or use a
+proxy, which remembers replies for a few minutes.
+
+@{b}"AmiSSL 5 is required"@{ub}
+
+Check with @{b}version amisslmaster.library@{ub}. Version 5 or newer is
+needed; older ones lack the HTTPS client GitFetch uses.
+
+@{b}Only one release shown@{ub}
+
+That is the default, to keep traffic down. Change it with the chooser at
+the bottom of the window.
+
+@endnode
+
+@node HISTORY "Version history"
+
+@{b}Version history@{ub}
+
+@{b}0.1@{ub}  -  first release, for my own use and for testers
+
+    The first version that does the whole job: type a repository, pick a
+    release and a file, and it lands on your hard drive.
+
+    - ReAction interface with saved repositories
+    - Two ways to reach GitHub: directly through AmiSSL, or through a
+      small proxy of your own
+    - Choose how many releases to fetch, to keep traffic down
+    - Asks before overwriting an existing file
+    - Downloads run in their own process, so the window stays responsive
+      and Stop works during a transfer
+    - Checks the system clock before connecting, because a wrong date
+      makes TLS fail in a way that says nothing about dates
+    - English interface, prepared for translation through catalogs
+    - Warns when a file would not fit on the target volume
+    - Can be iconified while a download runs
+
+@endnode
+
+@node AUTHOR "Author"
+
+@{b}Author@{ub}
+
+GitFetch was written by Mathieu Burgerhout.
+
+    @{"https://github.com/MathieuSEO/GitFetch" system "URLOpen https://github.com/MathieuSEO/GitFetch"}
+
+Which is also where new versions appear, and where GitFetch can fetch them
+itself: the repository is in the saved list from the start.
+
+Built with bebbo's amiga-gcc and the AmigaOS 3.9 NDK.
+
+@{b}With thanks to@{ub}
+
+Jens Maus and everyone behind AmiSSL, which wraps OpenSSL as an Amiga
+shared library and makes the direct connection possible at all.
+
+Amiga Cafe, @{"https://amiga.cafe" system "URLOpen https://amiga.cafe"}
+
+RVO, for my Amiga revival: he is the reason this machine runs at all.
+
+Darren Banfi, whose Mint projects started this. Wanting to help out with
+those is how GitFetch came about.
+
+And every (vibe) coder still keeping our oldest girlfriend alive. That the
+machine is still worth writing new software for is entirely down to them.
+
+@{b}Copyright@{ub}
+
+(c) 2026 Mathieu Burgerhout
+
+@endnode

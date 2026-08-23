@@ -1,0 +1,52 @@
+; Installer script for GitFetch
+;
+; Deliberately plain: GitFetch does not care where it lives, so this only
+; copies the drawer and leaves the settings alone.
+
+(set #intro
+  (cat "GitFetch 0.1\n\n"
+       "Fetch GitHub releases on AmigaOS.\n\n"
+       "This will copy the GitFetch drawer to a place of your choosing."))
+
+(set #where
+  (cat "Where should GitFetch be installed?\n\n"
+       "A drawer called GitFetch will be created there."))
+
+(set #no-os39
+  (cat "GitFetch needs the ReAction classes, which come with AmigaOS 3.5 "
+       "and later. Installing will continue, but the program will not run "
+       "on this system."))
+
+(message #intro)
+(welcome)
+
+; ReAction check: window.class lives in Classes: on OS 3.5 and later.
+(if (not (exists "SYS:Classes/Window.class"))
+    (message #no-os39))
+
+(set #dest
+  (askdir (prompt #where)
+          (help @askdir-help)
+          (default "Work:")))
+
+; Het installatiescript en zijn icoon horen niet in de installatie zelf
+; thuis: die zijn na afloop klaar.
+(copyfiles
+  (prompt "Copying GitFetch...")
+  (help @copyfiles-help)
+  (source "")
+  (dest (tackon #dest "GitFetch"))
+  (all)
+  (infos)
+  (pattern "~(Install|Install.info)"))
+
+(set @default-dest (tackon #dest "GitFetch"))
+
+; Het archiefformaat draagt het executable-bit niet over, dus dat zetten we
+; hier. Zonder dat bit weigert de Shell het programma te starten.
+(protect (tackon @default-dest "GitFetch") "+e")
+(protect (tackon @default-dest "gftest") "+e")
+
+(exit "GitFetch has been installed.\n\nOpen the settings from the menu to "
+      "choose how it should reach GitHub: directly using AmiSSL, or through "
+      "a proxy of your own.")

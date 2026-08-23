@@ -1,0 +1,14 @@
+# Alles wat make aanmaakt.
+build/
+dist/
+
+# macOS
+.DS_Store
+
+# De AmiSSL-SDK en de cross-compiler horen niet in de repo; zie
+# doc/toolchain.md voor het opzetten daarvan.
+amissl/
+
+# Python
+__pycache__/
+*.pyc
