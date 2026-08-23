@@ -9,6 +9,25 @@ hier net zo goed een afweging als het nut.
 
 ## Overwogen voor een volgende versie
 
+**Werken op OS 3.0 tot 3.4 met ClassAct**
+ReAction is voortgekomen uit ClassAct en gebruikt dezelfde klassenamen en
+tags. De ClassAct-classes melden zich echter als versie 41/42, terwijl
+`open_classes()` hard versie 44 eist -- daar loopt het op stuk. De vijf
+classes die GitFetch echt nodig heeft (window, layout, button, string,
+listbrowser) zitten bevestigd in ClassAct 2.0, met de tags die wij
+gebruiken.
+
+Het voorstel is de versie-eis per class te zetten: nul voor die vijf, en
+44 blijven eisen voor de optionele (chooser, getfile, fuelgauge). Dat
+laatste is geen detail: `AllocChooserNode` is een library-functie, en die
+aanroepen op een oudere chooser is een sprong in het niets. Onbekende
+tags worden onschadelijk genegeerd, ontbrekende functies niet.
+
+Kosten: een paar regels, geen noemenswaardige bytes. Vraagt wel een
+testronde onder emulatie met OS 3.1 plus de ClassAct-classes; niet alles
+kon vooraf bevestigd worden, met name het menu en de dubbelklik.
+
+
 **Snelheid tijdens het downloaden (KB/s)**
 De cijfers zijn er al: `sofar` en de starttijd. Op een trage lijn is het
 verschil tussen "traag" en "vastgelopen" nu niet te zien, wat mensen
@@ -17,9 +36,6 @@ onnodig ongerust maakt. Kosten: klein, een paar honderd bytes.
 **Laatst gebruikte repository onthouden**
 Bij het starten meteen het laatste adres in het veld. Kosten: klein, sluit
 aan op de bestaande prefs.
-
-**Venstergrootte en -positie onthouden**
-Amiga-gebruikers verwachten dit van een net programma. Kosten: klein.
 
 **Sorteerbare kolommen**
 `LISTBROWSER_TitleClickable` bestaat al in de class; het is vooral de

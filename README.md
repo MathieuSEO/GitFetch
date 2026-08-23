@@ -112,6 +112,35 @@ written up in [doc/toolchain.md](doc/toolchain.md):
 AmigaOS 3.9, 68060 at 50 MHz, Voodoo3 through a Mediator. Downloading
 AmiSSL, which is what makes the direct connection work in the first place.
 
+## Ideas for later
+
+Kept deliberately short: this runs on machines with 2 MB of RAM, and a
+feature nobody uses still costs memory for everyone. The full list, with
+what each would cost, is in [doc/wishlist.md](doc/wishlist.md).
+
+**Running on OS 3.0 to 3.4 through ClassAct.** ReAction grew out of
+ClassAct and uses the same class names and tags, but those classes report
+as version 41/42 while GitFetch asks `OpenLibrary` for 44. Lowering that
+requirement for the five classes it really needs would bring those systems
+in for anyone who installs ClassAct. A few lines of code; needs a test
+round under emulation first. This is the most likely next change.
+
+**Transfer speed while downloading.** The numbers are already there. On a
+slow line there is currently no way to tell "slow" from "stuck", which
+worries people needlessly.
+
+**Remembering the last repository** between runs, and **sortable columns**
+in the lists.
+
+**More languages.** The groundwork is done: every string goes through
+`gf_str()` and `locale.library` is opened at startup. A translation is a
+catalog in `LOCALE:Catalogs/<language>/` and costs no code at all. Waiting
+for someone who wants to make one.
+
+Three things are deliberately left out, with reasons in the wishlist:
+unpacking after download, an NTP client to set the clock, and an ARexx
+port.
+
 ## Thanks
 
 Jens Maus and everyone behind AmiSSL, Everyone at the Amiga Cafe <https://amiga.cafe>,
