@@ -1,15 +1,15 @@
-# Het GITFETCH-protocol
+# The GITFETCH protocol
 
-Plain HTTP, ISO-8859-1, regel- en tabgebaseerd. Bewust zo gekozen: op een
-68k is dit met `FGets()` en `strchr()` te verwerken zonder allocaties,
-zonder state machine en zonder JSON-parser.
+Plain HTTP, ISO-8859-1, line and tab based. Chosen deliberately: on a 68k
+this can be handled with `FGets()` and `strchr()`, without allocations,
+without a state machine, and without a JSON parser.
 
-De proxy doet het werk dat op de Amiga duur is: JSON platslaan, UTF-8 naar
-ISO-8859-1 translitereren (release-titels bevatten emoji), tabs en
-control-tekens strippen, en velden afkappen op de maximale lengtes uit
-`include/gitfetch.h`.
+The proxy does the work that is expensive on an Amiga: flattening the
+JSON, transliterating UTF-8 to ISO-8859-1 (release titles contain emoji),
+stripping tabs and control characters, and truncating fields to the
+maximum lengths from `include/gitfetch.h`.
 
-## GET /v1/releases?repo=owner/naam&max=15
+## GET /v1/releases?repo=owner/name&max=15
 
 ```
 #GITFETCH 1
@@ -22,17 +22,16 @@ R<TAB>1<TAB>5.26<TAB>2026-01-28<TAB>0<TAB>AmiSSL 5.26
 #END
 ```
 
-| Regel | Velden |
+| Line | Fields |
 |---|---|
-| `R` | release-index, tag, datum (JJJJ-MM-DD), prerelease (0/1), titel |
-| `A` | release-index, asset-index, bestandsnaam, grootte in bytes, download-pad |
+| `R` | release index, tag, date (YYYY-MM-DD), prerelease (0/1), title |
+| `A` | release index, asset index, filename, size in bytes, download path |
 
-Regels die met `#` beginnen zijn besturingsregels. Assets horen direct
-achter hun eigen `R`-regel te staan; een `A` met een release-index die niet
-bij de laatst gelezen release hoort wordt genegeerd in plaats van aan de
-verkeerde release gehangen.
+Lines starting with `#` are control lines. Assets must follow their own
+`R` line directly; an `A` whose release index does not match the last
+release read is ignored rather than attached to the wrong release.
 
-Fout:
+Error:
 
 ```
 #GITFETCH 1
@@ -40,24 +39,23 @@ Fout:
 #END
 ```
 
-**`#END` is verplicht.** Ontbreekt het, dan is de transfer halverwege
-afgebroken en meldt de client een fout. Een halve lijst tonen alsof het de
-hele is, is erger dan een foutmelding: je zou de nieuwste release missen
-zonder het te merken.
+**`#END` is required.** Without it the transfer was cut short, and the
+client reports an error. Showing half a list as though it were the whole
+one is worse than an error message: you would miss the newest release
+without noticing.
 
 ## GET /v1/asset?id=&lt;opaque&gt;
 
-Antwoordt met `200`, een `Content-Length` (nodig voor de voortgangsbalk) en
-de bytes van het bestand, rechtstreeks doorgestreamd vanaf GitHub.
+Replies with `200`, a `Content-Length` (needed for the progress bar) and
+the bytes of the file, streamed straight through from GitHub.
 
-Het `id` is een HMAC-getekende, in tijd begrensde verwijzing naar
-owner/repo/asset-id. Zonder die ondertekening zou de proxy een open relay
-zijn waarmee iedereen bandbreedte van de server kan wegtrekken. De upstream
-wordt daarnaast hard geallowlist op `api.github.com` en de
-`*.githubusercontent.com`-hosts.
+The `id` is an HMAC-signed, time-limited reference to owner/repo/asset-id.
+Without that signature the proxy would be an open relay through which
+anyone could pull bandwidth off the server. The upstream is additionally
+restricted to `api.github.com` and the `*.githubusercontent.com` hosts.
 
-Doorverwijzen naar de echte GitHub-URL kan niet: die is HTTPS-only en de
-Amiga heeft in fase 1 geen TLS.
+Redirecting to the real GitHub URL is not an option: that is HTTPS only,
+and in phase 1 the Amiga has no TLS.
 
 ## GET /v1/hello
 
@@ -68,4 +66,4 @@ Amiga heeft in fase 1 geen TLS.
 #END
 ```
 
-Voor een "test de verbinding"-knop.
+For a "test the connection" button.
