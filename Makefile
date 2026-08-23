@@ -188,9 +188,14 @@ dist: amiga
 	@echo "Klaar: dist/GitFetch.lha"
 
 # Zet het pakket klaar zoals Aminet het wil: archief en beschrijving apart,
-# met dezelfde basisnaam en het versienummer erin. De .readme wordt los
-# geupload en verschijnt op de pakketpagina.
-AMINET_NAME := GitFetch-$(VERSION)
+# met dezelfde basisnaam. De .readme wordt los geupload en verschijnt op de
+# pakketpagina.
+#
+# Bewust zonder versienummer in de naam. Beide vormen komen op Aminet voor,
+# maar zo blijft het adres van het pakket altijd hetzelfde en verouderen
+# links er niet naartoe. Een nieuwe versie vervangt de vorige; wie een
+# oudere zoekt, vindt die bij de releases op GitHub.
+AMINET_NAME := GitFetch
 
 aminet: dist
 	@mkdir -p dist/aminet
@@ -205,6 +210,7 @@ aminet: dist
 	@echo "  map  : /new"
 	@echo "  user : anonymous, wachtwoord: je e-mailadres"
 	@echo "Beide bestanden uploaden; de .readme hoort er los bij."
+	@echo "Een nieuwe versie vervangt de vorige onder dezelfde naam."
 
 clean:
 	rm -rf $(BUILD)

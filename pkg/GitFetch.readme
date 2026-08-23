@@ -123,4 +123,8 @@ Source, issues and newer versions:
 GitFetch can fetch its own updates: that repository is in the saved list
 from the start.
 
+This archive always carries the newest version under the same name, so a
+new release replaces the previous one here. Older versions stay available
+on GitHub under Releases.
+
 (c) 2026 Mathieu Burgerhout
