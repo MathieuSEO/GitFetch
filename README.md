@@ -112,6 +112,13 @@ written up in [doc/toolchain.md](doc/toolchain.md):
 AmigaOS 3.9, 68060 at 50 MHz, Voodoo3 through a Mediator. Downloading
 AmiSSL, which is what makes the direct connection work in the first place.
 
+## Known bugs
+
+None (yet). If you find one, please
+[open an issue](https://github.com/MathieuSEO/GitFetch/issues) and say
+which AmigaOS version, which TCP/IP stack, and whether you were using a
+direct connection or the proxy. That narrows it down considerably.
+
 ## Ideas for later
 
 Kept deliberately short: this runs on machines with 2 MB of RAM, and a
