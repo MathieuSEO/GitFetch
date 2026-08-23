@@ -19,6 +19,12 @@ CC_AMIGA     := $(AMIGA_PREFIX)/bin/m68k-amigaos-gcc
 # machine is een 68060. -noixemul om de C-runtime uit ixemul te vermijden;
 # dat scheelt afhankelijkheden en geheugen.
 # AmiSSL-SDK voor de rechtstreekse verbinding met GitHub.
+# Een echte LhA maakt een archief met compressie (lh5). Ontbreekt hij, dan
+# valt de build terug op tools/make_lha.py, die wel een geldig archief
+# schrijft maar niet comprimeert.
+# Binary: https://github.com/amigavision/LhA
+LHA ?= $(AMIGA_PREFIX)/bin/amiga-lha
+
 AMISSL_DIR ?= $(AMIGA_PREFIX)/m68k-amigaos/amissl
 AMISSL_CFLAGS := -I$(AMISSL_DIR)/include
 AMISSL_LIBS   := -L$(AMISSL_DIR)/lib -lamisslauto
@@ -161,8 +167,16 @@ dist: amiga
 	cp server/gitfetch_proxy.py server/test_proxy.py dist/GitFetch/server/
 	cp doc/proxy-deploy.en.md dist/GitFetch/server/README-proxy.en.md
 	cp doc/proxy-deploy.nl.md dist/GitFetch/server/README-proxy.nl.md
-	cd dist && rm -f GitFetch.lha && python3 ../tools/make_lha.py \
-		GitFetch.lha . GitFetch GitFetch.info GitFetch.readme
+	@cd dist && rm -f GitFetch.lha && \
+	if [ -x "$(LHA)" ]; then \
+		"$(LHA)" a --ignore-mac-files GitFetch.lha GitFetch \
+			GitFetch.info GitFetch.readme > /dev/null && \
+		echo "archief met compressie (lh5) via $(LHA)"; \
+	else \
+		echo "$(LHA) niet gevonden; archief zonder compressie"; \
+		python3 ../tools/make_lha.py GitFetch.lha . GitFetch \
+			GitFetch.info GitFetch.readme > /dev/null; \
+	fi
 	@echo "Klaar: dist/GitFetch.lha"
 
 clean:

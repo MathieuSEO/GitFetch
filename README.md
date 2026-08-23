@@ -73,6 +73,13 @@ make amiga       # cross-compile
 make dist        # build the distribution archive
 ```
 
+`make dist` uses a real LhA if one is available, which compresses; without
+it, it falls back to `tools/make_lha.py`, which writes a valid archive but
+stores everything uncompressed. A macOS binary is at
+[amigavision/LhA](https://github.com/amigavision/LhA); put it at
+`$AMIGA_PREFIX/bin/amiga-lha` or point `LHA=` at it. The difference is
+roughly a factor of two.
+
 The first four run on any machine with a C compiler and Python; no Amiga
 or cross-compiler needed. The parsers are deliberately written so they can
 be tested that way.
@@ -85,7 +92,7 @@ be tested that way.
 | `include/` | shared headers |
 | `server/` | the proxy; standard library only |
 | `test/` | host tests, fuzzer, and a POSIX shim to exercise the network code |
-| `tools/` | icon and LhA writers, because neither exists on macOS |
+| `tools/` | icon writer, and an LhA writer as a fallback |
 | `pkg/` | guide, installer script and Aminet description |
 | `doc/` | toolchain notes, protocol, wishlist |
 

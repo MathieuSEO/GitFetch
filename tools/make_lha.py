@@ -2,11 +2,12 @@
 """
 Maakt een LhA-archief.
 
-Er is op deze machine geen inpakker te krijgen (lhasa kan alleen uitpakken),
-dus schrijven we het formaat zelf. Met methode -lh0- wordt er niet
-gecomprimeerd; dat is een geldig .lha-bestand dat elke Amiga uitpakt. Wie
-een kleiner archief wil, pakt dit op de Amiga uit en maakt er met LhA
-opnieuw een met compressie.
+Terugval voor het geval er geen echte LhA beschikbaar is. Met methode
+-lh0- wordt er niet gecomprimeerd; dat is een geldig .lha-bestand dat elke
+Amiga uitpakt, maar het is ongeveer twee keer zo groot.
+
+De Makefile gebruikt bij voorkeur een echte LhA (zie de LHA-variabele
+daar); dit script springt alleen in als die ontbreekt.
 """
 
 import os
