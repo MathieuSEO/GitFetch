@@ -106,7 +106,7 @@ static const char *builtin[MSG_LAST] = {
 
     /* informatievenster */
     "About GitFetch",
-    "GitFetch %s\n"
+    "GitFetch %s (23-08-2026)\n"
         "Fetch releases from GitHub on AmigaOS\n\n"
         "by Mathieu Burgerhout\n\n"
         "With thanks to:\n"
@@ -115,7 +115,7 @@ static const char *builtin[MSG_LAST] = {
         "  RVO, for my Amiga revival\n"
         "  Darren Banfi, whose Mint projects started this\n"
         "  and every (vibe) coder still keeping our\n"
-        "  oldest girlfriend alive\n\n"
+        "  old girlfriend alive\n\n"
         "(c) 2026 Mathieu Burgerhout\n\n"
         "Connection: %s",
     "Close",
