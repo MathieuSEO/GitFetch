@@ -70,7 +70,7 @@ HOST_CFLAGS  := -std=c99 -Wall -Wextra -g -Itest/shim -Iinclude \
 HOST_SAN     := -fsanitize=undefined -fno-sanitize-recover=all
 BUILD        := build
 
-.PHONY: all dist aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
+.PHONY: all dist check-dist aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
 
 all: test
 
@@ -162,7 +162,30 @@ proxy:
 # Bouwt het distributiepakket: icoon, documentatie, proxy en archief.
 # dist/ wordt volledig opgebouwd uit build/ en pkg/; de bronbestanden van
 # het pakket (guide, installatiescript, Aminet-beschrijving) staan in pkg/.
-dist: amiga
+# Waarschuwt voordat dist/ wordt weggegooid, als daar tekst staat die
+# afwijkt van de bron in pkg/. Dat is precies hoe handwerk eerder verloren
+# ging: dist/ is wegwerp, maar dat is aan de bestanden niet te zien.
+check-dist:
+	@for f in GitFetch/GitFetch.guide GitFetch/Install; do \
+		src="pkg/$$(basename $$f)"; \
+		if [ -f "dist/$$f" ] && ! cmp -s "dist/$$f" "$$src"; then \
+			echo ""; \
+			echo "LET OP: dist/$$f wijkt af van $$src."; \
+			echo "dist/ wordt opnieuw opgebouwd en die wijziging gaat verloren."; \
+			echo "Neem hem eerst over in $$src, of maak een kopie."; \
+			echo ""; \
+			exit 1; \
+		fi; \
+	done
+	@if [ -f dist/GitFetch.readme ] && ! cmp -s dist/GitFetch.readme pkg/GitFetch.readme; then \
+		echo ""; \
+		echo "LET OP: dist/GitFetch.readme wijkt af van pkg/GitFetch.readme."; \
+		echo "Neem de wijziging eerst over in pkg/."; \
+		echo ""; \
+		exit 1; \
+	fi
+
+dist: check-dist amiga
 	@rm -rf dist
 	@mkdir -p dist/GitFetch/server
 	cp pkg/GitFetch.guide pkg/Install dist/GitFetch/
