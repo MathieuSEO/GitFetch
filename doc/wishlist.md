@@ -1,70 +1,70 @@
-# Wensenlijst
+# Wishlist
 
-Ideeën die de moeite waard lijken maar niet in 0.1 zitten. Bewust apart
-gehouden: het programma moet klein blijven. Op een Amiga met 2 MB telt elke
-kilobyte, en een functie die niemand gebruikt kost geheugen bij iedereen.
+Ideas worth considering that did not go into 0.1. Kept separate on
+purpose: the program has to stay small. On an Amiga with 2 MB every
+kilobyte counts, and a feature nobody uses still costs memory for
+everyone.
 
-Per punt staat er een inschatting van wat het aan code kost, want dat is
-hier net zo goed een afweging als het nut.
+Each entry says roughly what it would cost in code, because here that is
+as much part of the decision as the benefit.
 
-## Overwogen voor een volgende versie
+## Considered for a next version
 
-**Werken op OS 3.0 tot 3.4 met ClassAct**
-ReAction is voortgekomen uit ClassAct en gebruikt dezelfde klassenamen en
-tags. De ClassAct-classes melden zich echter als versie 41/42, terwijl
-`open_classes()` hard versie 44 eist -- daar loopt het op stuk. De vijf
-classes die GitFetch echt nodig heeft (window, layout, button, string,
-listbrowser) zitten bevestigd in ClassAct 2.0, met de tags die wij
-gebruiken.
+**Running on OS 3.0 to 3.4 through ClassAct**
+ReAction grew out of ClassAct and uses the same class names and tags. The
+ClassAct classes report as version 41/42, however, while `open_classes()`
+demands version 44 — and that is where it stops. The five classes GitFetch
+really needs (window, layout, button, string, listbrowser) are confirmed
+present in ClassAct 2.0, with the tags used here.
 
-Het voorstel is de versie-eis per class te zetten: nul voor die vijf, en
-44 blijven eisen voor de optionele (chooser, getfile, fuelgauge). Dat
-laatste is geen detail: `AllocChooserNode` is een library-functie, en die
-aanroepen op een oudere chooser is een sprong in het niets. Onbekende
-tags worden onschadelijk genegeerd, ontbrekende functies niet.
+The proposal is to set the version requirement per class: zero for those
+five, and keep 44 for the optional ones (chooser, getfile, fuelgauge).
+That last part is not a detail: `AllocChooserNode` is a library *function*,
+and calling it on an older chooser is a jump into nothing. Unknown *tags*
+are harmlessly ignored; missing functions are not.
 
-Kosten: een paar regels, geen noemenswaardige bytes. Vraagt wel een
-testronde onder emulatie met OS 3.1 plus de ClassAct-classes; niet alles
-kon vooraf bevestigd worden, met name het menu en de dubbelklik.
+Cost: a few lines, no meaningful bytes. Does need a test round under
+emulation with OS 3.1 and the ClassAct classes; not everything could be
+confirmed in advance, in particular the menu and the double-click.
 
+**Transfer speed while downloading (KB/s)**
+The numbers are already there: `sofar` and the start time. On a slow line
+there is no way to tell "slow" from "stuck", which worries people
+needlessly. Cost: small, a few hundred bytes.
 
-**Snelheid tijdens het downloaden (KB/s)**
-De cijfers zijn er al: `sofar` en de starttijd. Op een trage lijn is het
-verschil tussen "traag" en "vastgelopen" nu niet te zien, wat mensen
-onnodig ongerust maakt. Kosten: klein, een paar honderd bytes.
+**Remember the last repository used**
+Put the last address straight into the field at startup. Cost: small,
+fits the existing preferences.
 
-**Laatst gebruikte repository onthouden**
-Bij het starten meteen het laatste adres in het veld. Kosten: klein, sluit
-aan op de bestaande prefs.
+**Sortable columns**
+`LISTBROWSER_TitleClickable` already exists in the class; it is mostly the
+sorting logic that comes with it. The benefit is limited: releases already
+arrive newest first. Cost: medium.
 
-**Sorteerbare kolommen**
-`LISTBROWSER_TitleClickable` bestaat al in de class; het is vooral de
-sorteerlogica die erbij komt. Nut is beperkt: releases staan al op datum.
-Kosten: middel.
+**Filtering the file list**
+Useful for releases with dozens of files, which is rare for Amiga
+software. Cost: medium.
 
-**Filteren in de bestandenlijst**
-Nuttig bij releases met tientallen bestanden, wat zeldzaam is bij
-Amiga-software. Kosten: middel.
+## Deliberately not
 
-## Bewust niet
+**Unpacking and installing after the download**
+Left outside the scope: GitFetch fetches, and the rest you do with the
+tools you already trust. It also keeps xadmaster or lha off the
+dependency list.
 
-**Uitpakken en installeren na het downloaden**
-Buiten de opzet gehouden: GitFetch haalt binnen, de rest doe je met de
-gereedschappen die je al vertrouwt. Dat scheelt ook xadmaster of lha als
-afhankelijkheid.
+**An NTP client to set the clock**
+Setting the clock is a system-wide job, and there are good programs for it
+(Roadshow has one built in, and SNTP is on Aminet). Two programs reaching
+for the same clock causes more trouble than it solves. GitFetch does check
+the date and says so when it looks wrong.
 
-**Een NTP-client om de klok te zetten**
-De klok zetten is een systeemtaak, en daar bestaan goede programma's voor
-(Roadshow heeft er een ingebouwd, en SNTP staat op Aminet). Twee
-programma's die aan dezelfde klok zitten geeft meer gedoe dan het oplost.
-GitFetch controleert de datum wel en zegt het als hij niet klopt.
+**An ARexx port**
+Customary on AmigaOS for scriptability, but it needs a command table, a
+port of its own, and documentation. At version 0.1 with a handful of users
+that does not weigh up against the size. Cost: large.
 
-**ARexx-poort**
-Op AmigaOS gebruikelijk voor scriptbaarheid, maar het vraagt een
-commandotabel, een eigen poort en documentatie. Bij versie 0.1 met een
-handjevol gebruikers weegt dat niet op tegen de omvang. Kosten: groot.
-
-**Meer talen**
-De opzet ligt er: alle teksten lopen via `gf_str()` en `locale.library`
-wordt geopend. Een vertaling is een catalog in `LOCALE:Catalogs/<taal>/`
-en kost geen enkele coderegel. Wacht op iemand die er een wil maken.
+**More languages**
+The groundwork is done: every string goes through `gf_str()` and
+`locale.library` is opened at startup. A translation is a catalog in
+`LOCALE:Catalogs/<language>/` and costs no line of code. Waiting for
+someone who wants to make one.
