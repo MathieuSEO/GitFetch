@@ -33,6 +33,9 @@ WHAT IT DOES
     list by hand or copy it to another Amiga
   - accepts anything you paste: owner/repo, github.com/owner/repo, a full
     https address, or a link that ends in /releases/latest
+  - capitals do not matter: boingball/mintprint finds boingball/MintPRINT,
+    and a repository already saved is not added twice for being typed
+    differently
   - choose how many releases to fetch, which keeps the traffic down
   - asks before overwriting a file, and warns when the volume looks too
     full to hold it

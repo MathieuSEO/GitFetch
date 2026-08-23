@@ -109,6 +109,15 @@ work:
 Anything after the repository name is ignored, so a link straight out of a
 forum post is fine. Press Fetch, or hit Return in the field.
 
+Capitals do not matter. GitHub treats repository names as the same name
+whichever way you type them, so boingball/mintprint finds
+boingball/MintPRINT. Handy when you are copying a name off a screen and
+are not sure how it was written.
+
+GitFetch keeps that in mind for the saved list as well: a repository you
+have already saved is not added twice just because you typed it
+differently the second time.
+
 @{b}Downloading@{ub}
 
 Pick a release on the left; its files appear on the right. Pick a file,

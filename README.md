@@ -8,7 +8,8 @@ the CSS and JavaScript Github.com relies on. Getting to the newest `.lha`
 usually means walking over to a modern computer and transfer it back to your Amiga (what is your method of choice?)
 
 GitFetch does that part for you. Type a GitHub address or `owner/repo`, 
-pick a release and a file, and it lands on your hard drive.
+pick a release and a file, and it lands on your hard drive. Capitals do
+not matter: `boingball/mintprint` finds `boingball/MintPRINT`.
 
 It downloads, and nothing else. Unpacking and installing stay in your own
 hands, with the tools you already trust.
