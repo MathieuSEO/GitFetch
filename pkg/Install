@@ -29,18 +29,21 @@
           (help @askdir-help)
           (default "Work:")))
 
-; Het installatiescript en zijn icoon horen niet in de installatie zelf
-; thuis: die zijn na afloop klaar.
+; (all), (pattern) en (choices) sluiten elkaar uit; alleen (all) kopieert
+; de server-map betrouwbaar mee. Het installatiescript zelf hoort niet in
+; de installatie thuis, dus dat gaat er achteraf weer uit.
 (copyfiles
   (prompt "Copying GitFetch...")
   (help @copyfiles-help)
   (source "")
   (dest (tackon #dest "GitFetch"))
   (all)
-  (infos)
-  (pattern "~(Install|Install.info)"))
+  (infos))
 
 (set @default-dest (tackon #dest "GitFetch"))
+
+(delete (tackon @default-dest "Install"))
+(delete (tackon @default-dest "Install.info"))
 
 ; Het archiefformaat draagt het executable-bit niet over, dus dat zetten we
 ; hier. Zonder dat bit weigert de Shell het programma te starten.

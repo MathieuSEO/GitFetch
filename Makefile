@@ -70,7 +70,7 @@ HOST_CFLAGS  := -std=c99 -Wall -Wextra -g -Itest/shim -Iinclude \
 HOST_SAN     := -fsanitize=undefined -fno-sanitize-recover=all
 BUILD        := build
 
-.PHONY: all dist check-dist aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
+.PHONY: all dist check-dist check-installer aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
 
 all: test
 
@@ -189,7 +189,12 @@ check-dist:
 		exit 1; \
 	fi
 
-dist: check-dist amiga
+# Het Installer-script is hier niet te draaien, maar de fouten die het
+# bevatte waren wel zonder uitvoeren te vinden.
+check-installer:
+	@python3 tools/check_installer.py pkg/Install
+
+dist: check-dist check-installer amiga
 	@rm -rf dist
 	@mkdir -p dist/GitFetch/server
 	cp pkg/GitFetch.guide pkg/Install dist/GitFetch/
