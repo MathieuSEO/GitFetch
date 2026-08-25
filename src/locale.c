@@ -106,7 +106,7 @@ static const char *builtin[MSG_LAST] = {
 
     /* informatievenster */
     "About GitFetch",
-    "GitFetch %s (23-08-2026)\n"
+    "GitFetch %s (25-08-2026)\n"
         "Fetch releases from GitHub on AmigaOS\n\n"
         "by Mathieu Burgerhout\n\n"
         "With thanks to:\n"

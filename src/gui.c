@@ -85,6 +85,9 @@ struct Library *ChooserBase     = NULL;
 struct Library *CheckBoxBase    = NULL;
 struct Library *IntegerBase     = NULL;
 struct Library *GadToolsBase    = NULL;
+/* getfile.gadget opent hierop zijn bestandsrequester. Zonder deze
+   library doet de knop naast "Save in" niets. */
+struct Library *AslBase         = NULL;
 
 struct ClassLib {
     struct Library **base;
@@ -980,7 +983,7 @@ static BOOL build_window(struct GFApp *app)
         TAG_END);
 
     GF_TRACEP("listbrowser 2", app->gadgets[GID_ASSETS]);
-    if (GetFileBase)
+    if (GetFileBase && AslBase)
         app->gadgets[GID_DEST] = NEWOBJ(cls_getfile),
             GA_ID,               GID_DEST,
             GA_RelVerify,        TRUE,
@@ -1196,35 +1199,58 @@ static BOOL build_window(struct GFApp *app)
 
     GF_TRACEP("root", root);
     GF_TRACE("window.class object maken");
-    app->winobj = NEWOBJ(cls_window),
-        WA_Title,          (ULONG)gf_str(MSG_WINDOW_TITLE),
-        WA_ScreenTitle,    (ULONG)gf_str(MSG_SCREEN_TITLE),
-        WA_Activate,       TRUE,
-        WA_DepthGadget,    TRUE,
-        WA_DragBar,        TRUE,
-        WA_CloseGadget,    TRUE,
-        WA_SizeGadget,     TRUE,
+    {
         /*
-         * Bescheiden beginformaat: op een standaard PAL-scherm (640x256)
-         * moet het venster er in zijn geheel op passen. Groter mag altijd;
-         * de layout schaalt mee.
+         * De tags voor plaats en formaat worden per geval opgebouwd.
+         * Eerder stonden ze er allemaal in, met WINDOW_Position erachter,
+         * en die wint: window.class centreerde het venster en negeerde de
+         * bewaarde plaats. De variabele werd wel degelijk gelezen -- er
+         * werd alleen niets mee gedaan.
          */
-        WA_Left,           (ULONG)app->prefs.win_left,
-        WA_Top,            (ULONG)app->prefs.win_top,
-        WA_Width,          (ULONG)(app->prefs.win_width > 0
-                                    ? app->prefs.win_width : 0),
-        WA_Height,         (ULONG)(app->prefs.win_height > 0
-                                    ? app->prefs.win_height : 0),
-        WA_InnerWidth,     (ULONG)(app->prefs.win_width > 0 ? 0 : 600),
-        WA_InnerHeight,    (ULONG)(app->prefs.win_height > 0 ? 0 : 180),
-        WINDOW_Position,   WPOS_CENTERSCREEN,
+        struct TagItem w[24];
+        LONG n = 0;
+        BOOL restore = (BOOL)(app->prefs.win_width  > 0 &&
+                              app->prefs.win_height > 0);
+
+#define WIN_TAG(tag, data) do { \
+        w[n].ti_Tag = (Tag)(tag); w[n].ti_Data = (ULONG)(data); n++; \
+    } while (0)
+
+        WIN_TAG(WA_Title,       gf_str(MSG_WINDOW_TITLE));
+        WIN_TAG(WA_ScreenTitle, gf_str(MSG_SCREEN_TITLE));
+        WIN_TAG(WA_Activate,    TRUE);
+        WIN_TAG(WA_DepthGadget, TRUE);
+        WIN_TAG(WA_DragBar,     TRUE);
+        WIN_TAG(WA_CloseGadget, TRUE);
+        WIN_TAG(WA_SizeGadget,  TRUE);
+
+        if (restore) {
+            WIN_TAG(WA_Left,   app->prefs.win_left);
+            WIN_TAG(WA_Top,    app->prefs.win_top);
+            WIN_TAG(WA_Width,  app->prefs.win_width);
+            WIN_TAG(WA_Height, app->prefs.win_height);
+        } else {
+            /*
+             * Nog niets bewaard: een bescheiden formaat, gecentreerd. Op
+             * een PAL-scherm van 640x256 moet het venster er in zijn
+             * geheel op passen; groter mag altijd, de layout schaalt mee.
+             */
+            WIN_TAG(WA_InnerWidth,   600);
+            WIN_TAG(WA_InnerHeight,  180);
+            WIN_TAG(WINDOW_Position, WPOS_CENTERSCREEN);
+        }
+
         /* Wegklikken naar Workbench: een download van een paar minuten
            wil je niet in beeld hoeven houden. */
-        WINDOW_IconifyGadget, TRUE,
-        WINDOW_IconTitle,     (ULONG)"GitFetch",
-        WINDOW_ParentGroup,(ULONG)root,
-        WINDOW_MenuStrip,  (ULONG)app->menu,
-        TAG_END);
+        WIN_TAG(WINDOW_IconifyGadget, TRUE);
+        WIN_TAG(WINDOW_IconTitle,     "GitFetch");
+        WIN_TAG(WINDOW_ParentGroup,   root);
+        WIN_TAG(WINDOW_MenuStrip,     app->menu);
+        WIN_TAG(TAG_END, 0);
+#undef WIN_TAG
+
+        app->winobj = NewObjectA(cls_window.ptr, cls_window.name, w);
+    }
 
     return checked(app->winobj, "window.class") ? TRUE : FALSE;
 }
@@ -1484,6 +1510,7 @@ static BOOL open_classes(void)
     struct ClassLib *cl;
 
     GadToolsBase = OpenLibrary("gadtools.library", 39);
+    AslBase      = OpenLibrary("asl.library", 39);
 
     for (cl = class_libs; cl->base; cl++) {
         *cl->base = OpenLibrary(cl->name, 44);
@@ -1552,6 +1579,10 @@ static void close_classes(void)
     if (GadToolsBase) {
         CloseLibrary(GadToolsBase);
         GadToolsBase = NULL;
+    }
+    if (AslBase) {
+        CloseLibrary(AslBase);
+        AslBase = NULL;
     }
 }
 

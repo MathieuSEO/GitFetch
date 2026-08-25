@@ -11,7 +11,7 @@
 
 #include <exec/types.h>
 
-#define GF_VERSION      "0.1"
+#define GF_VERSION      "0.2"
 #define GF_PROTO        1
 
 #define GF_MAX_TAG      32      /* proxy kapt af op 31 + NUL */

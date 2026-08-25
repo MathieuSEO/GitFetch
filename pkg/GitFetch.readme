@@ -2,7 +2,7 @@ Short:        Fetch GitHub releases, ReAction GUI
 Author:       m.burgerhout@gmail.com (Mathieu Burgerhout)
 Uploader:     m burgerhout gmail com (Mathieu Burgerhout)
 Type:         comm/tcp
-Version:      0.1
+Version:      0.2
 Requires:     OS 3.5+ for ReAction; bsdsocket.library; AmiSSL 5;
               a correctly set clock
 Architecture: m68k-amigaos >= 3.5

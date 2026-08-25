@@ -13,7 +13,7 @@
 #   make clean
 
 # --- cross-compiler ---------------------------------------------------------
-VERSION := 0.1
+VERSION := 0.2
 
 AMIGA_PREFIX ?= /opt/amiga
 CC_AMIGA     := $(AMIGA_PREFIX)/bin/m68k-amigaos-gcc

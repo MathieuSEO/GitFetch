@@ -37,7 +37,7 @@ const char stack_size[] = "$STACK:65536";
  * alleen bleek daarvoor niet genoeg met deze binutils.
  */
 const char version_tag[] =
-    "$VER: GitFetch " GF_VERSION " (23.8.2026)";
+    "$VER: GitFetch " GF_VERSION " (25.8.2026)";
 
 int main(int argc, char **argv)
 {

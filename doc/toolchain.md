@@ -209,3 +209,30 @@ date 21-aug-26 17:00:00    ; correct
 ```
 
 GitFetch now checks this in advance and reports it in plain language.
+
+## WINDOW_Position overrules WA_Left and WA_Top
+
+window.class places the window itself when you pass `WINDOW_Position`, and
+it does so regardless of any `WA_Left`/`WA_Top` you also gave it:
+
+```c
+WA_Left,         saved_left,          /* silently ignored */
+WA_Top,          saved_top,
+WINDOW_Position, WPOS_CENTERSCREEN,   /* this wins */
+```
+
+Nothing warns you. The remembered position is read, stored, passed in --
+and the window still opens centred. A user reported it as "the variable
+is saved but not evaluated", which is exactly what it looks like from the
+outside, while the reading side was working perfectly.
+
+Pass `WINDOW_Position` only when you have no position of your own. That
+means building the tag list at runtime rather than writing it out, since
+you cannot leave a tag out of a fixed list.
+
+## getfile.gadget needs asl.library
+
+The class opens an ASL requester when you click its button, and does not
+open the library itself. Without `OpenLibrary("asl.library", 39)`
+somewhere in your program the gadget appears normally, sits in the layout
+normally, and does nothing at all when clicked. No error, no hint.

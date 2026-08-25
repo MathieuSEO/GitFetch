@@ -122,7 +122,10 @@ AmiSSL, which is what makes the direct connection work in the first place.
 
 ## Known bugs
 
-None (yet). If you find one, please
+None (yet).
+
+Fixed in 0.2: the window did not reopen where you left it, and the button
+beside "Save in" did nothing. Both reported by yelworC on amiga-news.de. If you find one, please
 [open an issue](https://github.com/MathieuSEO/GitFetch/issues) and say
 which AmigaOS version, which TCP/IP stack, and whether you were using a
 direct connection or the proxy. That narrows it down considerably.

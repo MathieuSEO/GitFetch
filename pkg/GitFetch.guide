@@ -269,6 +269,16 @@ the bottom of the window.
 
 @{b}Version history@{ub}
 
+@{b}0.2@{ub}  -  25 August 2026
+
+    - The window now really does reopen where you left it. It was saved
+      correctly all along, but WINDOW_Position told window.class to centre
+      the window regardless, so nothing came of it.
+    - The button beside "Save in" works. It opens an ASL requester, and
+      asl.library was never opened, so clicking it did nothing at all.
+
+    Thanks to yelworC on amiga-news.de for pinning both of these down.
+
 @{b}0.1@{ub}  -  first release, for my own use and for testers
 
     The first version that does the whole job: type a repository, pick a
