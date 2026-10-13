@@ -4,7 +4,7 @@
 ; copies the drawer and leaves the settings alone.
 
 (set #intro
-  (cat "GitFetch 0.1\n\n"
+  (cat "GitFetch 0.2\n\n"
        "Fetch GitHub releases on AmigaOS.\n\n"
        "This will copy the GitFetch drawer to a place of your choosing."))
 

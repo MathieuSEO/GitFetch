@@ -44,6 +44,8 @@ void gf_prefs_defaults(struct GFPrefs *prefs)
        proxy van de gebruiker hoeft te draaien. */
     prefs->backend = GF_BACKEND_NATIVE;
     prefs->verify_cert = 1;
+    /* Draait er geen notificatieserver, dan kost dit niets. */
+    prefs->notify = 1;
 }
 
 LONG gf_fetch_releases(struct GFPrefs *prefs, const char *repo,

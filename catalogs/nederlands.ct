@@ -1,0 +1,215 @@
+## version $VER: GitFetch.catalog 0.2 (11.10.2026)
+## language nederlands
+## codeset 0
+;
+; Nederlandse teksten voor GitFetch. ISO-8859-1.
+; Controleren en bouwen: make catalogs
+;
+MSG_WINDOW_TITLE
+GitFetch
+MSG_SCREEN_TITLE
+GitFetch - releases ophalen van GitHub
+MSG_MENU_PROJECT
+Project
+MSG_MENU_ABOUT
+Over...
+MSG_MENU_QUIT
+Stoppen
+MSG_MENU_SETTINGS
+Instellingen
+MSG_MENU_EDIT_SETTINGS
+Wijzigen...
+MSG_REPOSITORY
+Repository
+MSG_FETCH
+_Ophalen
+MSG_SAVE_MARK
+Bewaar
+MSG_FORGET_MARK
+Vergeet
+MSG_DELETE_MARK
+Verwijder
+MSG_DOWNLOAD
+_Downloaden
+MSG_STOP
+_Stop
+MSG_SAVE_IN
+Opslaan in
+MSG_COL_SAVED
+Bewaard
+MSG_COL_VERSION
+Versie
+MSG_COL_DATE
+Datum
+MSG_COL_FILES
+Bestanden
+MSG_COL_FILE
+Bestand
+MSG_COL_SIZE
+Grootte
+MSG_COUNT_NEWEST
+nieuwste
+MSG_COUNT_3
+laatste 3
+MSG_COUNT_5
+laatste 5
+MSG_COUNT_10
+laatste 10
+MSG_COUNT_ALL
+alle
+MSG_HINT_TYPE
+Typ een GitHub-adres of eigenaar/repo en kies Ophalen.
+MSG_HINT_PICK
+Kies links een bewaarde repository, of typ een adres.
+MSG_HINT_DOUBLECLICK
+Dubbelklik, of kies Ophalen.
+MSG_NEED_REPO
+Vul eerst een repository in.
+MSG_BAD_REPO
+Hier valt geen eigenaar/repo uit te halen.
+MSG_FETCHING
+Ophalen: 
+MSG_NO_RELEASES
+Deze repository heeft geen releases.
+MSG_ONE_RELEASE
+1 release. Kies rechts een bestand en dan Downloaden.
+MSG_N_RELEASES
+%ld releases. Kies er links een; de bestanden staan rechts.
+MSG_RELEASE_NO_FILES
+Release %s heeft geen bestanden.
+MSG_RELEASE_FILES
+Release %s: %ld bestand(en). Kies er een en dan Downloaden.
+MSG_PICK_RELEASE
+Kies eerst een release.
+MSG_PICK_FILE
+Kies eerst een bestand uit de lijst.
+MSG_DOWNLOADING
+Downloaden: 
+MSG_DONE_SAVED
+Klaar: %s staat in %s
+MSG_ABORTING
+Bezig met stoppen...
+MSG_ERROR_PREFIX
+Fout: 
+MSG_SAVED_MARK
+Bewaard: 
+MSG_UNSAVED_MARK
+Niet meer bewaard: 
+MSG_MARK_EXISTS
+Die staat al in de lijst.
+MSG_PICK_MARK
+Kies eerst een bewaarde repository.
+MSG_MARK_REMOVED
+Uit de lijst gehaald.
+MSG_ENVARC_FAILED
+ (kon niet naar ENVARC: schrijven)
+MSG_NO_WORKER
+Kan het netwerkproces niet starten.
+MSG_SETTINGS_CHANGED
+Instellingen gewijzigd.
+MSG_FILE_EXISTS
+%s bestaat al in %s.\n\nHet is %ld bytes.\nOverschrijven?
+MSG_OVERWRITE_GADGETS
+Overschrijven|Annuleren
+MSG_DOWNLOAD_CANCELLED
+Download geannuleerd; het bestaande bestand is gebleven.
+MSG_RATE_LIMIT_HINT
+GitHub weigerde het verzoek. Zonder token mag je 60 verzoeken per uur doen; probeer het later nog eens, of gebruik de proxy.
+MSG_NO_SPACE
+%s heeft %ld KB nodig, maar er is maar %ld KB vrij op dat volume.\n\nToch downloaden?
+MSG_PREFS_TITLE
+GitFetch-instellingen
+MSG_PREFS_NATIVE
+_Rechtstreeks met GitHub verbinden (AmiSSL)
+MSG_PREFS_VERIFY
+_Certificaat controleren
+MSG_PREFS_HOST
+Proxy-adres
+MSG_PREFS_PORT
+Poort
+MSG_PREFS_COUNT
+Releases ophalen
+MSG_PREFS_SAVE
+_Opslaan
+MSG_PREFS_USE
+_Gebruiken
+MSG_PREFS_CANCEL
+_Annuleren
+MSG_ABOUT_TITLE
+Over GitFetch
+MSG_ABOUT_BODY
+GitFetch %s (%s)\nReleases ophalen van GitHub op AmigaOS\n\ndoor Mathieu Burgerhout\n\nMet dank aan:\n  Jens Maus en iedereen achter AmiSSL\n  Amiga Cafe - https://amiga.cafe\n  RVO, voor mijn Amiga-revival\n  Darren Banfi, wiens Mint-projecten hiermee begonnen\n  en elke (vibe) coder die onze oude liefde\n  nog in leven houdt\n\n(c) 2026 Mathieu Burgerhout\n\nVerbinding: %s
+MSG_ABOUT_CLOSE
+Sluiten
+MSG_VIA_NATIVE
+rechtstreeks via AmiSSL
+MSG_VIA_PROXY
+via de proxy
+MSG_FILES_NONE
+geen
+MSG_FILES_SOURCE
+broncode
+MSG_BETA
+ (bèta)
+MSG_RELEASE_SOURCE_ONLY
+Release %s heeft geen kant-en-klare bestanden, alleen de broncode.
+MSG_RELEASE_FILES_MORE
+Release %s: %ld bestand(en) getoond, nog %ld op GitHub.
+MSG_SIZE_MB
+%lu,%lu MB
+MSG_SIZE_KB
+%lu KB
+MSG_SIZE_B
+%lu B
+MSG_NOTIFY_DONE
+Gedownload
+MSG_NOTIFY_FAILED
+Mislukt
+MSG_NOTIFY_SAVED
+%s staat in %s
+MSG_PREFS_NOTIFY
+_Melding als een download klaar is
+MSG_ERR_NOMEM
+Onvoldoende geheugen
+MSG_ERR_SOCKET
+Kan bsdsocket.library niet openen (draait de TCP/IP-stack?)
+MSG_ERR_DNS
+Servernaam niet gevonden
+MSG_ERR_CONNECT
+Kan geen verbinding maken met de server
+MSG_ERR_SEND
+Versturen mislukt
+MSG_ERR_RECV
+Verbinding verbroken of te lang geen antwoord
+MSG_ERR_HTTP
+De server gaf een fout terug
+MSG_ERR_PROTO
+Onverwacht antwoord van de server
+MSG_ERR_SERVER
+De proxy meldde een fout
+MSG_ERR_ABORTED
+Afgebroken
+MSG_ERR_FILE
+Kan het bestand niet schrijven
+MSG_ERR_URL
+Deze repository is niet te begrijpen
+MSG_ERR_TLS
+Voor een rechtstreekse verbinding met GitHub is AmiSSL 5 nodig
+MSG_ERR_CLOCK
+De klok van de Amiga staat verkeerd
+MSG_ERR_UNKNOWN
+Onbekende fout
+MSG_TLS_NO_SOCKET
+bsdsocket.library is niet open
+MSG_TLS_CLOCK
+De datum van de Amiga staat voor 2020; certificaten lijken dan nog niet geldig. Zet de klok goed, bijvoorbeeld: date 21-aug-26 12:00:00
+MSG_TLS_NO_AMISSL
+amisslmaster.library niet gevonden; is AmiSSL 5 geïnstalleerd?
+MSG_TLS_INIT
+Kan AmiSSL niet starten
+MSG_TLS_CONTEXT
+Kan geen TLS-context maken
+MSG_TLS_NO_CA
+Let op: geen CA-bundel gevonden, certificaat niet gecontroleerd
+MSG_TLS_NO_ANSWER
+Geen antwoord van GitHub (netwerk, DNS of klok?)

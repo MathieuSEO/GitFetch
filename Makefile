@@ -8,6 +8,7 @@
 #   make gftest   alleen de CLI-testtool
 #   make gitfetch alleen het GUI-programma
 #   make proxy    lokale proxy starten op poort 8099
+#   make catalogs    vertalingen controleren en bouwen (catalogs/*.ct)
 #   make dist    distributiepakket met icoon, guide en LhA-archief
 #   make aminet  hetzelfde, met de naamgeving die Aminet verwacht
 #   make clean
@@ -49,15 +50,20 @@ AMIGA_CFLAGS := -m68020 -Os -noixemul -Wall -Wextra -Wno-pointer-sign \
 # -u _version_tag houdt de $VER:-string vast. Niets in de code verwijst
 # ernaar, dus zonder dit gooit --gc-sections hem weg en werkt het
 # version-commando niet meer. De underscore hoort erbij: dat is de
-# symboolconventie op m68k.
-AMIGA_LDFLAGS := -noixemul -Wl,--gc-sections -Wl,-u,_version_tag -s
+# symboolconventie op m68k. Voor de $STACK:-string geldt hetzelfde.
+#
+# -u ___stkinit haalt de swapstack-module van libnix binnen. Die leest
+# __stack uit main.c en gftest.c en wisselt bij het opstarten naar een
+# grotere stack; anders draait TLS op de 4 KB die een Shell vaak meegeeft.
+AMIGA_LDFLAGS := -noixemul -Wl,--gc-sections -Wl,-u,_version_tag \
+                 -Wl,-u,_stack_size -Wl,-u,___stkinit -s
 
 COMMON_SRC := src/parse.c src/url.c src/errors.c src/net.c src/json.c \
-              src/backend.c src/backend_proxy.c src/backend_native.c \
+              src/assets.c src/backend.c src/backend_proxy.c src/backend_native.c \
               src/locale.c
 CLI_SRC    := $(COMMON_SRC) src/prefs.c src/gftest.c
 GUI_SRC    := $(COMMON_SRC) src/worker.c src/gui.c src/prefswin.c \
-              src/bookmarks.c src/prefs.c src/main.c
+              src/bookmarks.c src/prefs.c src/notify.c src/main.c
 
 # -lamiga levert DoMethod() en de overige amiga.lib-hulpjes. De ReAction-
 # classes worden met OpenLibrary geopend en hoeven niet gelinkt te worden.
@@ -70,7 +76,7 @@ HOST_CFLAGS  := -std=c99 -Wall -Wextra -g -Itest/shim -Iinclude \
 HOST_SAN     := -fsanitize=undefined -fno-sanitize-recover=all
 BUILD        := build
 
-.PHONY: all dist check-dist check-installer aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
+.PHONY: all dist check-dist check-installer check-catalogs catalogs aminet test test-proxy test-json test-net fuzz amiga gftest gitfetch gitfetch-debug proxy clean check-toolchain
 
 all: test
 
@@ -81,7 +87,7 @@ $(BUILD):
 # net.c en backend_proxy.c hebben bsdsocket en dos.library nodig.
 test: | $(BUILD)
 	$(CC_HOST) $(HOST_CFLAGS) $(HOST_SAN) -o $(BUILD)/test_parse \
-		test/test_parse.c src/parse.c src/url.c
+		test/test_parse.c src/parse.c src/url.c src/assets.c
 	@$(BUILD)/test_parse
 
 test-proxy:
@@ -99,7 +105,7 @@ REPO       ?= jens-maus/amissl
 # blokgroottes; de testdata staan in test/data.
 test-json: | $(BUILD)
 	$(CC_HOST) $(HOST_CFLAGS) $(HOST_SAN) -o $(BUILD)/test_json \
-		test/test_json.c src/json.c
+		test/test_json.c src/json.c src/assets.c
 	@for f in test/data/*.json; do \
 		for c in 1 3 13 511 4096; do \
 			$(BUILD)/test_json $$f $$c > $(BUILD)/got.txt; \
@@ -116,12 +122,12 @@ test-net: | $(BUILD)
 	$(CC_HOST) $(HOST_CFLAGS) -o $(BUILD)/test_net \
 		test/test_net.c test/shim/shim.c test/shim/native_stub.c \
 		src/net.c src/parse.c src/url.c src/errors.c src/json.c \
-		src/backend.c src/backend_proxy.c
+		src/assets.c src/backend.c src/backend_proxy.c
 	@$(BUILD)/test_net $(PROXY_HOST) $(PROXY_PORT) $(REPO)
 
 fuzz: | $(BUILD)
 	$(CC_HOST) $(HOST_CFLAGS) $(HOST_SAN) -o $(BUILD)/fuzz_parse \
-		test/fuzz_parse.c src/parse.c src/url.c src/json.c
+		test/fuzz_parse.c src/parse.c src/url.c src/json.c src/assets.c
 	@$(BUILD)/fuzz_parse
 
 check-toolchain:
@@ -145,7 +151,7 @@ gftest: check-toolchain | $(BUILD)
 # herleiden is.
 gitfetch-debug: check-toolchain | $(BUILD)
 	$(CC_AMIGA) -m68020 -O1 -noixemul -Wall -Wextra -Wno-pointer-sign \
-		-Iinclude -DGF_DEBUG -o $(BUILD)/GitFetchDebug $(GUI_SRC) \
+		-Iinclude $(AMISSL_CFLAGS) -DGF_DEBUG -o $(BUILD)/GitFetchDebug $(GUI_SRC) \
 		$(AMIGA_LDFLAGS) $(GUI_LIBS)
 	@echo "Klaar: $(BUILD)/GitFetchDebug"
 
@@ -189,12 +195,36 @@ check-dist:
 		exit 1; \
 	fi
 
+# --- vertalingen -------------------------------------------------------------
+#
+# catalogs/GitFetch.cd volgt uit src/locale.c; elke catalogs/<taal>.ct wordt
+# een catalog in Catalogs/<taal>/ naast het programma. locale.library zoekt
+# daar uit zichzelf (PROGDIR:Catalogs/), dus het Installer-script hoeft er
+# niets voor te doen. Een nieuwe taal is alleen een nieuw .ct-bestand.
+CT_FILES := $(wildcard catalogs/*.ct)
+CATALOGS := $(patsubst catalogs/%.ct,$(BUILD)/catalogs/%/GitFetch.catalog,$(CT_FILES))
+
+# Faalt als de .cd achterloopt op locale.c, of een vertaling niet klopt:
+# een ontbrekende tekst of een verkeerde printf-code.
+check-catalogs: | $(BUILD)
+	@python3 tools/make_catalog.py cd $(BUILD)/GitFetch.cd
+	@cmp -s $(BUILD)/GitFetch.cd catalogs/GitFetch.cd || { \
+		echo "catalogs/GitFetch.cd loopt achter op src/locale.c."; \
+		echo "Bijwerken met: python3 tools/make_catalog.py cd catalogs/GitFetch.cd"; \
+		exit 1; }
+	@python3 tools/make_catalog.py check $(CT_FILES)
+
+$(BUILD)/catalogs/%/GitFetch.catalog: catalogs/%.ct src/locale.c include/gflocale.h include/gitfetch.h
+	python3 tools/make_catalog.py build $< $@
+
+catalogs: check-catalogs $(CATALOGS)
+
 # Het Installer-script is hier niet te draaien, maar de fouten die het
 # bevatte waren wel zonder uitvoeren te vinden.
 check-installer:
 	@python3 tools/check_installer.py pkg/Install
 
-dist: check-dist check-installer amiga
+dist: check-dist check-installer catalogs amiga
 	@rm -rf dist
 	@mkdir -p dist/GitFetch/server
 	cp pkg/GitFetch.guide pkg/Install dist/GitFetch/
@@ -204,6 +234,7 @@ dist: check-dist check-installer amiga
 	python3 tools/make_icon.py installer dist/GitFetch/Install.info
 	python3 tools/make_icon.py drawer dist/GitFetch.info
 	cp $(BUILD)/GitFetch $(BUILD)/gftest dist/GitFetch/
+	cp -R $(BUILD)/catalogs dist/GitFetch/Catalogs
 	cp server/gitfetch_proxy.py server/test_proxy.py dist/GitFetch/server/
 	cp doc/proxy-deploy.en.md dist/GitFetch/server/README-proxy.en.md
 	cp doc/proxy-deploy.nl.md dist/GitFetch/server/README-proxy.nl.md

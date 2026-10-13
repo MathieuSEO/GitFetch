@@ -3,9 +3,9 @@
 @width 74
 @wordwrap
 
-@node MAIN "GitFetch 0.1"
+@node MAIN "GitFetch 0.2"
 
-               @{b}GitFetch 0.1@{ub}
+               @{b}GitFetch 0.2@{ub}
                Fetch GitHub releases on an Amiga,
                without any hassle
 
@@ -15,6 +15,8 @@
     @{" Using it        " link USING}
     @{" Two ways to reach GitHub " link BACKENDS}
     @{" Settings        " link SETTINGS}
+    @{" Notifications   " link NOTIFY}
+    @{" Other languages " link LANGUAGES}
     @{" The proxy       " link PROXY}
     @{" Troubleshooting " link TROUBLE}
     @{" Version history " link HISTORY}
@@ -109,6 +111,15 @@ work:
 Anything after the repository name is ignored, so a link straight out of a
 forum post is fine. Press Fetch, or hit Return in the field.
 
+From the Shell you can name the repository straight away, and GitFetch
+fetches it as soon as the window opens:
+
+    GitFetch boingball/mintprint
+    GitFetch https://github.com/jens-maus/amissl/releases
+
+That also lets a web browser hand a GitHub link to GitFetch: add a
+command to its link menu that runs GitFetch with the link as argument.
+
 Capitals do not matter. GitHub treats repository names as the same name
 whichever way you type them, so boingball/mintprint finds
 boingball/MintPRINT. Handy when you are copying a name off a screen and
@@ -117,6 +128,25 @@ are not sure how it was written.
 GitFetch keeps that in mind for the saved list as well: a repository you
 have already saved is not added twice just because you typed it
 differently the second time.
+
+@{b}Which files you see@{ub}
+
+Every file attached to a release is listed, whatever its type: .lha, .lzx,
+.zip, .adf, but also the Windows and Linux builds some projects publish
+alongside.
+
+The list holds twelve files per release. When a release has more, the
+archive and disk formats an Amiga user is after (.lha, .lzh, .lzx, .zip,
+.adf, .adz, .dms, .hdf, .7z, .tar.gz) go first, and the rest makes way.
+The Files column then shows a + after the number, and picking the release
+tells you how many more are on GitHub.
+
+Last in each list is the source code as a zip, named like
+@{b}repo-1.0-source.zip@{ub}. GitHub offers it with every release. Its size
+is not known in advance, so the bar does not move while it downloads.
+
+A release that has only that zip says "source" in the Files column. Its
+author attached no ready-made archive; an older release often has one.
 
 @{b}Downloading@{ub}
 
@@ -191,16 +221,63 @@ Open with the Settings menu, or right-Amiga+I.
     Verify certificate           check you are really talking to GitHub
     Proxy address, Port          only used when going through a proxy
     Number of releases           how many to fetch at once
+    Notify when a download ends  a pop-up through Herald, Ranchero or
+                                 Ringhio @{" More " link NOTIFY}
 
-Save writes them to ENVARC: so they survive a reboot. "Just now" applies
-them to this session only, and Cancel leaves everything as it was.
+Save writes them to ENVARC: so they survive a reboot. Use applies them to
+this session only, and Cancel leaves everything as it was.
 
 Fields that do not apply to your choice are greyed out.
 
 Settings can also come from the icon's tooltypes (PROXYHOST, PROXYPORT,
-DESTDIR, MAXRELEASES, BACKEND) or from environment variables under
-GitFetch/ in ENV:. Environment variables win, so you can try something
-from the Shell without touching the icon.
+DESTDIR, MAXRELEASES, BACKEND, NOTIFY, LANGUAGE) or from environment
+variables under GitFetch/ in ENV:. Environment variables win, so you can
+try something from the Shell without touching the icon.
+
+@endnode
+
+@node NOTIFY "Notifications"
+
+@{b}Notifications@{ub}
+
+When a download finishes or fails, GitFetch can say so in a small pop-up
+that does not take the focus. Handy when the window is iconified and the
+download runs in the background.
+
+That pop-up comes from a notification server, if one is running:
+
+    Herald      AmigaOS 3.1 and newer, on Aminet
+    Ranchero    AmigaOS 3.0 and newer, on Aminet
+    Ringhio     part of AmigaOS 4.1
+
+GitFetch asks them in this order and uses the first that is running.
+Herald counts as running for as long as it is loaded, also when it shows
+nothing, for instance in do-not-disturb mode. To use Ranchero, remove
+Herald in Exchange. Without a server, nothing happens and nothing is
+missing. Stopping a download yourself gives no pop-up.
+
+Switch it off with the checkbox in the settings, the tooltype NOTIFY=NO or
+@{b}SetEnv GitFetch/Notify 0@{ub}.
+
+@endnode
+
+@node LANGUAGES "Other languages"
+
+@{b}Other languages@{ub}
+
+GitFetch speaks English, and Dutch or German when Locale prefs ask for
+it. Each translation is a catalog in the Catalogs drawer beside the
+program; no installation step is involved.
+
+To use a language other than the one Locale prefs chose, give the icon a
+tooltype such as @{b}LANGUAGE=deutsch@{ub} or @{b}LANGUAGE=nederlands@{ub},
+or from the Shell:
+
+    SetEnv GitFetch/Language nederlands
+
+Translating GitFetch into another language costs no code. Everything
+needed is in the source on GitHub: copy catalogs/nederlands.ct, translate
+the lines, and send it in.
 
 @endnode
 
@@ -224,7 +301,8 @@ One thing to watch when putting it behind a web server: it must serve
 plain HTTP. An Amiga without AmiSSL cannot follow a redirect to HTTPS, so
 any automatic redirect has to be switched off for that hostname.
 
-The full description is in README-proxy.md in the server drawer.
+The full description is in README-proxy.en.md in the server drawer, and
+in Dutch in README-proxy.nl.md.
 
 @endnode
 
@@ -258,6 +336,13 @@ proxy, which remembers replies for a few minutes.
 Check with @{b}version amisslmaster.library@{ub}. Version 5 or newer is
 needed; older ones lack the HTTPS client GitFetch uses.
 
+@{b}The bar stays at 0% during a download@{ub}
+
+That happens with the source code zip (repo-1.0-source.zip). GitHub
+builds that zip while sending it and does not say beforehand how large
+it will be, so there is nothing to measure progress against. The
+download itself runs normally; the status line says when it is done.
+
 @{b}Only one release shown@{ub}
 
 That is the default, to keep traffic down. Change it with the chooser at
@@ -269,15 +354,29 @@ the bottom of the window.
 
 @{b}Version history@{ub}
 
-@{b}0.2@{ub}  -  25 August 2026
+@{b}0.2@{ub}  -  11 October 2026
 
     - The window now really does reopen where you left it. It was saved
       correctly all along, but WINDOW_Position told window.class to centre
       the window regardless, so nothing came of it.
     - The button beside "Save in" works. It opens an ASL requester, and
       asl.library was never opened, so clicking it did nothing at all.
+    - A repository can be given on the command line, so a browser can
+      hand GitHub links to GitFetch.
+    - Pop-up notifications through Herald, Ranchero or Ringhio when a
+      download finishes or fails.
+    - Dutch and German translations, and every message can now be
+      translated, error messages included.
+    - The source code zip GitHub offers with each release is now in the
+      list on a direct connection too.
+    - Releases with more than twelve files keep the Amiga archives, and
+      say how many more there are on GitHub.
+    - GitFetch and gftest now get a large enough stack on every AmigaOS
+      version, not only where the Shell reads $STACK.
 
-    Thanks to yelworC on amiga-news.de for pinning both of these down.
+    Thanks to yelworC on amiga-news.de for pinning down the first two and
+    suggesting the command line, and to everyone who reported it running
+    on OS 3.2, OS 4.1, AmiKit and PiStorm32.
 
 @{b}0.1@{ub}  -  first release, for my own use and for testers
 

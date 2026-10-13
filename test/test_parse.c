@@ -13,6 +13,7 @@
 #include "gitfetch.h"
 #include "gfparse.h"
 #include "gfurl.h"
+#include "gfassets.h"
 
 static int failures = 0;
 static int checks = 0;
@@ -218,6 +219,96 @@ static void test_missing_fields(void)
     check(list.releases[0].nassets == 0, "asset zonder pad genegeerd");
 }
 
+static void test_more_line(void)
+{
+    struct ReleaseList list;
+    const char *text =
+        "#GITFETCH 1\n"
+        "#STATUS OK\n"
+        "#MORE 0 9\n"                                /* nog geen release */
+        "R\t0\tv2\t2026-01-01\t0\tTwee\n"
+        "A\t0\t0\ta.lha\t100\t/v1/asset?id=a\n"
+        "#MORE 0 11\n"
+        "R\t1\tv1\t2026-01-01\t0\tEen\n"
+        "#MORE 0 5\n"                                /* hoort bij v2, te laat */
+        "#END\n";
+
+    printf("test: #MORE-regels\n");
+    check(run_parser(text, &list, 0) == GF_OK, "parser geeft GF_OK");
+    check(list.releases[0].nskipped == 11, "release 0 mist 11 bestanden");
+    check(list.releases[1].nskipped == 0, "een verdwaalde #MORE telt niet");
+}
+
+static void make_asset(struct Asset *a, const char *name, ULONG size)
+{
+    memset(a, 0, sizeof(*a));
+    strcpy(a->name, name);
+    strcpy(a->path, "/x");
+    a->size = size;
+}
+
+static void test_asset_choice(void)
+{
+    struct Release rel;
+    struct Asset a;
+    char name[GF_MAX_NAME];
+    char what[96];
+    int i;
+
+    printf("test: keuze van de bestanden\n");
+    check(gf_asset_rank("Game.LHA") == GF_RANK_ARCHIVE, "lha in hoofdletters");
+    check(gf_asset_rank("disk.adf") == GF_RANK_ARCHIVE, "adf");
+    check(gf_asset_rank("src.tar.gz") == GF_RANK_ARCHIVE, "tar.gz");
+    check(gf_asset_rank("setup.exe") == GF_RANK_OTHER, "exe");
+    check(gf_asset_rank("lha") == GF_RANK_OTHER, "alleen een extensie-woord");
+
+    /* Elf Windows-bestanden en drie Amiga-archieven: de archieven moeten
+       erin, de voorste elf blijven grotendeels staan. */
+    memset(&rel, 0, sizeof(rel));
+    for (i = 0; i < 14; i++) {
+        char n[32];
+        if (i < 11)
+            sprintf(n, "win-%d.exe", i);
+        else
+            sprintf(n, "amiga-%d.lha", i);
+        make_asset(&a, n, 100);
+        if (rel.nassets < GF_MAX_ASSETS)
+            rel.assets[rel.nassets++] = a;
+        else
+            gf_asset_offer(&rel, &a);
+    }
+    check(rel.nassets == GF_MAX_ASSETS, "lijst blijft op het maximum");
+    check(rel.nskipped == 2, "twee bestanden afgevallen");
+    check_str(rel.assets[8].name, "win-8.exe", "voorste bestanden blijven staan");
+    check_str(rel.assets[9].name, "amiga-11.lha", "eerste archief");
+    check_str(rel.assets[11].name, "amiga-13.lha", "laatste archief");
+
+    /* Bij gelijke rang wint wat eerst kwam. */
+    make_asset(&a, "late.exe", 1);
+    gf_asset_offer(&rel, &a);
+    check(rel.nskipped == 3, "ook een geweigerd bestand telt mee");
+    check_str(rel.assets[11].name, "amiga-13.lha", "exe verdringt geen lha");
+
+    gf_source_name("Vesuri/aloneinthedark", "0.91", name);
+    check_str(name, "aloneinthedark-0.91-source.zip", "naam broncode-zip");
+    gf_source_name("", "1.0", name);
+    check_str(name, "1.0-source.zip", "zonder repo-naam");
+    memset(what, 'r', 80); what[80] = '\0';
+    gf_source_name(what, "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv", name);
+    check(strlen(name) == GF_MAX_NAME - 1, "lange naam past precies");
+    check(strstr(name, "vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv-source.zip") != NULL,
+          "tag blijft heel");
+
+    memset(&rel, 0, sizeof(rel));
+    make_asset(&rel.assets[0], "game.lha", 5);
+    make_asset(&rel.assets[1], "game-1.0-source.zip", 0);
+    rel.nassets = 2;
+    check(gf_release_files(&rel) == 1, "broncode-zip telt niet als bestand");
+    check(!gf_asset_is_source(&rel.assets[0]), "lha is geen broncode");
+    make_asset(&rel.assets[1], "echt-source.zip", 1234);
+    check(gf_release_files(&rel) == 2, "met een grootte is het een echt bestand");
+}
+
 static void test_url_normalisation(void)
 {
     struct {
@@ -289,6 +380,8 @@ int main(void)
     test_overflow_limits();
     test_orphan_asset();
     test_missing_fields();
+    test_more_line();
+    test_asset_choice();
     test_url_normalisation();
 
     printf("\n%d controles, %d mislukt\n", checks, failures);

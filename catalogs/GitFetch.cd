@@ -1,0 +1,212 @@
+; GitFetch.cd -- gegenereerd uit src/locale.c door
+; tools/make_catalog.py. Niet met de hand bewerken: pas de Engelse
+; tekst aan in locale.c en draai 'make catalogs'.
+;
+MSG_WINDOW_TITLE (0//)
+GitFetch
+MSG_SCREEN_TITLE (1//)
+GitFetch - fetch releases from GitHub
+MSG_MENU_PROJECT (2//)
+Project
+MSG_MENU_ABOUT (3//)
+About...
+MSG_MENU_QUIT (4//)
+Quit
+MSG_MENU_SETTINGS (5//)
+Settings
+MSG_MENU_EDIT_SETTINGS (6//)
+Edit...
+MSG_REPOSITORY (7//)
+Repository
+MSG_FETCH (8//)
+_Fetch
+MSG_SAVE_MARK (9//)
+Save
+MSG_FORGET_MARK (10//)
+Forget
+MSG_DELETE_MARK (11//)
+Remove
+MSG_DOWNLOAD (12//)
+_Download
+MSG_STOP (13//)
+_Stop
+MSG_SAVE_IN (14//)
+Save in
+MSG_COL_SAVED (15//)
+Saved
+MSG_COL_VERSION (16//)
+Version
+MSG_COL_DATE (17//)
+Date
+MSG_COL_FILES (18//)
+Files
+MSG_COL_FILE (19//)
+File
+MSG_COL_SIZE (20//)
+Size
+MSG_COUNT_NEWEST (21//)
+latest
+MSG_COUNT_3 (22//)
+last 3
+MSG_COUNT_5 (23//)
+last 5
+MSG_COUNT_10 (24//)
+last 10
+MSG_COUNT_ALL (25//)
+all
+MSG_HINT_TYPE (26//)
+Type a GitHub address or owner/repo and press Fetch.
+MSG_HINT_PICK (27//)
+Pick a saved repository on the left, or type an address.
+MSG_HINT_DOUBLECLICK (28//)
+Double-click, or press Fetch.
+MSG_NEED_REPO (29//)
+Enter a repository first.
+MSG_BAD_REPO (30//)
+Cannot read an owner/repo from this.
+MSG_FETCHING (31//)
+Fetching 
+MSG_NO_RELEASES (32//)
+This repository has no releases.
+MSG_ONE_RELEASE (33//)
+1 release. Pick a file on the right and press Download.
+MSG_N_RELEASES (34//)
+%ld releases. Pick one on the left; its files appear on the right.
+MSG_RELEASE_NO_FILES (35//)
+Release %s has no files.
+MSG_RELEASE_FILES (36//)
+Release %s: %ld file(s). Pick one and press Download.
+MSG_PICK_RELEASE (37//)
+Pick a release first.
+MSG_PICK_FILE (38//)
+Pick a file from the list first.
+MSG_DOWNLOADING (39//)
+Downloading 
+MSG_DONE_SAVED (40//)
+Done: %s saved in %s
+MSG_ABORTING (41//)
+Aborting...
+MSG_ERROR_PREFIX (42//)
+Error: 
+MSG_SAVED_MARK (43//)
+Saved: 
+MSG_UNSAVED_MARK (44//)
+No longer saved: 
+MSG_MARK_EXISTS (45//)
+That one is already in the list.
+MSG_PICK_MARK (46//)
+Pick a saved repository first.
+MSG_MARK_REMOVED (47//)
+Removed from the list.
+MSG_ENVARC_FAILED (48//)
+ (could not write to ENVARC:)
+MSG_NO_WORKER (49//)
+Cannot start the network process.
+MSG_SETTINGS_CHANGED (50//)
+Settings changed.
+MSG_FILE_EXISTS (51//)
+%s already exists in %s.\n\nIt is %ld bytes.\nOverwrite it?
+MSG_OVERWRITE_GADGETS (52//)
+Overwrite|Cancel
+MSG_DOWNLOAD_CANCELLED (53//)
+Download cancelled; the existing file was kept.
+MSG_RATE_LIMIT_HINT (54//)
+GitHub refused the request. Without a token it allows 60 requests per hour; try again later, or use the proxy.
+MSG_NO_SPACE (55//)
+%s needs %ld KB, but only %ld KB is free on that volume.\n\nDownload anyway?
+MSG_PREFS_TITLE (56//)
+GitFetch settings
+MSG_PREFS_NATIVE (57//)
+_Connect to GitHub directly (AmiSSL)
+MSG_PREFS_VERIFY (58//)
+_Verify certificate
+MSG_PREFS_HOST (59//)
+Proxy address
+MSG_PREFS_PORT (60//)
+Port
+MSG_PREFS_COUNT (61//)
+Fetch releases
+MSG_PREFS_SAVE (62//)
+_Save
+MSG_PREFS_USE (63//)
+_Use
+MSG_PREFS_CANCEL (64//)
+_Cancel
+MSG_ABOUT_TITLE (65//)
+About GitFetch
+MSG_ABOUT_BODY (66//)
+GitFetch %s (%s)\nFetch releases from GitHub on AmigaOS\n\nby Mathieu Burgerhout\n\nWith thanks to:\n  Jens Maus and everyone behind AmiSSL\n  Amiga Cafe - https://amiga.cafe\n  RVO, for my Amiga revival\n  Darren Banfi, whose Mint projects started this\n  and every (vibe) coder still keeping our\n  old girlfriend alive\n\n(c) 2026 Mathieu Burgerhout\n\nConnection: %s
+MSG_ABOUT_CLOSE (67//)
+Close
+MSG_VIA_NATIVE (68//)
+directly via AmiSSL
+MSG_VIA_PROXY (69//)
+through the proxy
+MSG_FILES_NONE (70//)
+none
+MSG_FILES_SOURCE (71//)
+source
+MSG_BETA (72//)
+ (beta)
+MSG_RELEASE_SOURCE_ONLY (73//)
+Release %s has no ready-made files, only its source code.
+MSG_RELEASE_FILES_MORE (74//)
+Release %s: %ld file(s) shown, %ld more on GitHub.
+MSG_SIZE_MB (75//)
+%lu.%lu MB
+MSG_SIZE_KB (76//)
+%lu KB
+MSG_SIZE_B (77//)
+%lu B
+MSG_NOTIFY_DONE (78//)
+Downloaded
+MSG_NOTIFY_FAILED (79//)
+Failed
+MSG_NOTIFY_SAVED (80//)
+%s saved in %s
+MSG_PREFS_NOTIFY (81//)
+_Notify when a download finishes
+MSG_ERR_NOMEM (82//)
+Out of memory
+MSG_ERR_SOCKET (83//)
+Cannot open bsdsocket.library (is the TCP/IP stack running?)
+MSG_ERR_DNS (84//)
+Server name not found
+MSG_ERR_CONNECT (85//)
+Cannot connect to the server
+MSG_ERR_SEND (86//)
+Sending failed
+MSG_ERR_RECV (87//)
+Connection lost or timed out
+MSG_ERR_HTTP (88//)
+The server returned an error
+MSG_ERR_PROTO (89//)
+Unexpected reply from the server
+MSG_ERR_SERVER (90//)
+The proxy reported an error
+MSG_ERR_ABORTED (91//)
+Aborted
+MSG_ERR_FILE (92//)
+Cannot write the file
+MSG_ERR_URL (93//)
+Cannot make sense of that repository
+MSG_ERR_TLS (94//)
+AmiSSL 5 is required for a direct connection to GitHub
+MSG_ERR_CLOCK (95//)
+The Amiga clock is wrong
+MSG_ERR_UNKNOWN (96//)
+Unknown error
+MSG_TLS_NO_SOCKET (97//)
+bsdsocket.library is not open
+MSG_TLS_CLOCK (98//)
+The Amiga's date is before 2020, so certificates look not yet valid. Set the clock, for example: date 21-aug-26 12:00:00
+MSG_TLS_NO_AMISSL (99//)
+amisslmaster.library not found; is AmiSSL 5 installed?
+MSG_TLS_INIT (100//)
+Cannot initialise AmiSSL
+MSG_TLS_CONTEXT (101//)
+Cannot create a TLS context
+MSG_TLS_NO_CA (102//)
+Note: no CA bundle found, certificate not checked
+MSG_TLS_NO_ANSWER (103//)
+No answer from GitHub (network, DNS or clock?)

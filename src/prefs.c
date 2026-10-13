@@ -38,6 +38,15 @@ static void set_string(char *dest, LONG size, const char *value)
     dest[len] = '\0';
 }
 
+/* "NO", "OFF" en "0" zetten iets uit; al het andere, ook leeg, aan. */
+static UWORD switch_value(const char *value)
+{
+    if (strnicmp(value, "no", 2) == 0 || strnicmp(value, "off", 3) == 0 ||
+        value[0] == '0')
+        return 0;
+    return 1;
+}
+
 /* Leest een variabele uit ENV:GitFetch/<naam>. */
 static BOOL read_env(const char *name, char *buf, LONG size)
 {
@@ -87,6 +96,11 @@ static void apply_tooltypes(struct GFPrefs *prefs, struct WBStartup *wbs)
     if ((value = FindToolType(tt, (STRPTR)"BACKEND")) != NULL)
         prefs->backend = (UWORD)(strnicmp((const char *)value, "native", 6) == 0
                                  ? GF_BACKEND_NATIVE : GF_BACKEND_PROXY);
+    if ((value = FindToolType(tt, (STRPTR)"NOTIFY")) != NULL)
+        prefs->notify = switch_value((const char *)value);
+    if ((value = FindToolType(tt, (STRPTR)"LANGUAGE")) != NULL)
+        set_string(prefs->language, sizeof(prefs->language),
+                   (const char *)value);
 
     FreeDiskObject(icon);
     CloseLibrary(IconBase);
@@ -137,6 +151,10 @@ void gf_prefs_load(struct GFPrefs *prefs, struct WBStartup *wbs)  /* wbs mag NUL
                                  ? GF_BACKEND_NATIVE : GF_BACKEND_PROXY);
     if (read_env("VerifyCert", buf, sizeof(buf)))
         prefs->verify_cert = (UWORD)(atoi(buf) ? 1 : 0);
+    if (read_env("Notify", buf, sizeof(buf)))
+        prefs->notify = switch_value(buf);
+    if (read_env("Language", buf, sizeof(buf)))
+        set_string(prefs->language, sizeof(prefs->language), buf);
 
     if (prefs->port == 0)
         prefs->port = 80;

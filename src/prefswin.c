@@ -55,6 +55,7 @@ extern struct ClassRef cls_window, cls_layout, cls_string, cls_button,
 #define PID_SAVE     6
 #define PID_USE      7
 #define PID_CANCEL   8
+#define PID_NOTIFY   9
 
 struct PrefsWin {
     Object        *win;
@@ -107,6 +108,8 @@ static void save_prefs(struct GFPrefs *p)
     save_var("Backend", p->backend == GF_BACKEND_NATIVE ? "native" : "proxy");
     sprintf(buf, "%ld", (long)p->verify_cert);
     save_var("VerifyCert", buf);
+    sprintf(buf, "%ld", (long)p->notify);
+    save_var("Notify", buf);
     gf_save_window_prefs(p);
 }
 
@@ -139,6 +142,10 @@ static void collect(struct PrefsWin *pw, struct GFPrefs *p)
     if (pw->g[PID_VERIFY]) {
         GetAttr(GA_Selected, pw->g[PID_VERIFY], &v);
         p->verify_cert = (UWORD)(v ? 1 : 0);
+    }
+    if (pw->g[PID_NOTIFY]) {
+        GetAttr(GA_Selected, pw->g[PID_NOTIFY], &v);
+        p->notify = (UWORD)(v ? 1 : 0);
     }
 }
 
@@ -196,6 +203,14 @@ static BOOL build(struct PrefsWin *pw, struct GFPrefs *p)
         GA_RelVerify, TRUE,
         GA_Text,      (ULONG)gf_str(MSG_PREFS_VERIFY),
         GA_Selected,  (ULONG)(p->verify_cert != 0),
+        TAG_END);
+
+    /* Geldt voor beide verbindingen, en staat daarom los onderaan. */
+    pw->g[PID_NOTIFY] = NEWOBJ(cls_checkbox),
+        GA_ID,        PID_NOTIFY,
+        GA_RelVerify, TRUE,
+        GA_Text,      (ULONG)gf_str(MSG_PREFS_NOTIFY),
+        GA_Selected,  (ULONG)(p->notify != 0),
         TAG_END);
 
     pw->g[PID_HOST] = NEWOBJ(cls_string),
@@ -256,6 +271,8 @@ static BOOL build(struct PrefsWin *pw, struct GFPrefs *p)
             CHILD_WeightedHeight, 0,
         LAYOUT_AddChild,    (ULONG)pw->g[PID_MAX],
             CHILD_Label,    (ULONG)make_label(gf_str(MSG_PREFS_COUNT)),
+            CHILD_WeightedHeight, 0,
+        LAYOUT_AddChild,    (ULONG)pw->g[PID_NOTIFY],
             CHILD_WeightedHeight, 0,
         LAYOUT_AddChild,    (ULONG)buttons,
             CHILD_WeightedHeight, 0,

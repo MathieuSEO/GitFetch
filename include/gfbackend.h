@@ -23,6 +23,8 @@ struct GFPrefs {
     UWORD max_releases;
     UWORD backend;          /* GF_BACKEND_* */
     UWORD verify_cert;      /* certificaat van GitHub controleren (native) */
+    UWORD notify;           /* melding via Herald, Ranchero of Ringhio */
+    char  language[32];     /* catalog-taal; leeg = volg Prefs/Locale */
 
     /* Waar het venster stond toen je het de vorige keer sloot. Nul
        betekent: nog niets onthouden, gebruik het standaardformaat. */

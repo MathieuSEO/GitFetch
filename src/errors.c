@@ -1,5 +1,8 @@
 /*
- * errors.c -- foutcodes naar Nederlandse tekst.
+ * errors.c -- foutcodes naar Engelse tekst.
+ *
+ * Voor gftest en de hosttests, die geen catalog openen. De GUI gebruikt
+ * gf_error_str() uit locale.c, met dezelfde teksten maar vertaalbaar.
  */
 
 #include <exec/types.h>

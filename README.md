@@ -14,6 +14,12 @@ not matter: `boingball/mintprint` finds `boingball/MintPRINT`.
 It downloads, and nothing else. Unpacking and installing stay in your own
 hands, with the tools you already trust.
 
+Every file of a release is listed, whatever its type, plus the source code
+zip GitHub offers with each one. From the Shell, `GitFetch owner/repo`
+fetches straight away, so a browser can hand links over too. When Herald,
+Ranchero or Ringhio runs, a pop-up says when a download is done. The
+interface is English, or Dutch or German when Locale prefs ask for it.
+
 ![GitFetch on AmigaOS 3.9](images/main-window.jpg)
 
 Saved repositories on the left, releases in the middle, the files in that
@@ -66,10 +72,11 @@ full setup, including four pitfalls that will otherwise cost you an
 evening.
 
 ```sh
-make test        # host tests: parser and URL normalisation
+make test        # host tests: parser, URL normalisation, file choice
 make test-proxy  # proxy: signing, allowlist, text conversion
 make test-json   # JSON parser against a reference implementation
 make fuzz        # 500,000 rounds of malformed input
+make catalogs    # check translations and build the .catalog files
 make amiga       # cross-compile
 make dist        # build the distribution archive
 ```
@@ -81,7 +88,7 @@ stores everything uncompressed. A macOS binary is at
 `$AMIGA_PREFIX/bin/amiga-lha` or point `LHA=` at it. The difference is
 roughly a factor of two.
 
-The first four run on any machine with a C compiler and Python; no Amiga
+The first five run on any machine with a C compiler and Python; no Amiga
 or cross-compiler needed. The parsers are deliberately written so they can
 be tested that way.
 
@@ -93,7 +100,8 @@ be tested that way.
 | `include/` | shared headers |
 | `server/` | the proxy; standard library only |
 | `test/` | host tests, fuzzer, and a POSIX shim to exercise the network code |
-| `tools/` | icon writer, and an LhA writer as a fallback |
+| `tools/` | icon and catalog writers, and an LhA writer as a fallback |
+| `catalogs/` | translations: `GitFetch.cd` (generated) and one `.ct` per language |
 | `pkg/` | guide, installer script and Aminet description |
 | `doc/` | toolchain notes, protocol, wishlist |
 
@@ -122,10 +130,13 @@ AmiSSL, which is what makes the direct connection work in the first place.
 
 ## Known bugs
 
-None (yet).
+None known. One limitation: the progress bar stays at 0% while the source
+code zip downloads. GitHub builds that zip on the fly and sends no length,
+so there is nothing to measure against; the download itself is fine.
 
 Fixed in 0.2: the window did not reopen where you left it, and the button
-beside "Save in" did nothing. Both reported by yelworC on amiga-news.de. If you find one, please
+beside "Save in" did nothing. Both reported by yelworC on amiga-news.de,
+who also asked for the command line argument that 0.2 adds. If you find one, please
 [open an issue](https://github.com/MathieuSEO/GitFetch/issues) and say
 which AmigaOS version, which TCP/IP stack, and whether you were using a
 direct connection or the proxy. That narrows it down considerably.
@@ -150,10 +161,10 @@ worries people needlessly.
 **Remembering the last repository** between runs, and **sortable columns**
 in the lists.
 
-**More languages.** The groundwork is done: every string goes through
-`gf_str()` and `locale.library` is opened at startup. A translation is a
-catalog in `LOCALE:Catalogs/<language>/` and costs no code at all. Waiting
-for someone who wants to make one.
+**More languages.** English, Dutch and German are there. Another language costs no
+code: copy `catalogs/nederlands.ct`, translate the lines, and `make
+catalogs` checks it (a wrong `%s` or a missing line is caught) and builds
+the catalog.
 
 Three things are deliberately left out, with reasons in the wishlist:
 unpacking after download, an NTP client to set the clock, and an ARexx

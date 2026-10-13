@@ -65,6 +65,12 @@ MAX_NAME = 63
 MAX_RELEASES = 25
 MAX_ASSETS_PER_RELEASE = 12   # gelijk aan GF_MAX_ASSETS in gitfetch.h
 
+# Past een release niet in twaalf regels, dan gaan deze formaten voor;
+# gelijk aan archive_suffixes in src/assets.c.
+ARCHIVE_SUFFIXES = (".lha", ".lzh", ".lzx", ".zip", ".adf", ".adz", ".dms",
+                    ".hdf", ".7z", ".tar.gz", ".tgz")
+SOURCE_SUFFIX = "-source.zip"
+
 
 # --------------------------------------------------------------------------
 # Tekstconversie: UTF-8 -> ISO-8859-1
@@ -118,6 +124,55 @@ def field(text, maxlen):
 
 
 # --------------------------------------------------------------------------
+# Keuze van de bestanden; dezelfde regels als src/assets.c en src/json.c
+# --------------------------------------------------------------------------
+
+def asset_rank(name):
+    return 2 if name.lower().endswith(ARCHIVE_SUFFIXES) else 1
+
+
+def select_assets(items):
+    """Kiest uit (naam, ...)-tuples welke in de lijst passen.
+
+    Zit de lijst vol, dan verdringt een archief het laatste bestand van
+    een lagere rang; de volgorde van de rest blijft gelijk. Geeft de
+    gekozen items en het aantal dat afviel.
+    """
+    kept, skipped = [], 0
+    for item in items:
+        if len(kept) < MAX_ASSETS_PER_RELEASE:
+            kept.append(item)
+            continue
+        skipped += 1
+        rank = asset_rank(item[0])
+        for i in range(len(kept) - 1, -1, -1):
+            if asset_rank(kept[i][0]) < rank:
+                del kept[i]
+                kept.append(item)
+                break
+    return kept, skipped
+
+
+def source_name(zipball_url, tag):
+    """<repo>-<tag>-source.zip, ingekort zoals gf_source_name() dat doet.
+
+    De repo-naam komt uit de zipball-URL, net als in de client: dan is de
+    schrijfwijze die van GitHub en niet die van wie hem intypte.
+    """
+    repo = ""
+    path = urllib.parse.urlparse(zipball_url).path
+    if "/repos/" in path and "/zipball/" in path:
+        repo = path.split("/repos/", 1)[1].split("/zipball/", 1)[0]
+    name = repo.split("/", 1)[1] if "/" in repo else repo
+    room = MAX_NAME - len(SOURCE_SUFFIX)
+    tag = tag[:room]
+    out = ""
+    if name and len(tag) + 1 < room:
+        out = name[:room - len(tag) - 1] + "-"
+    return out + tag + SOURCE_SUFFIX
+
+
+# --------------------------------------------------------------------------
 # Ondertekende asset-ids
 # --------------------------------------------------------------------------
 
@@ -138,14 +193,14 @@ def verify_asset(token):
         payload, mac_b64 = token.rsplit(".", 1)
         owner, repo, asset_id, expiry = payload.split("/")
     except Exception:
-        raise ValueError("ongeldig asset-id")
+        raise ValueError("Invalid file reference")
 
     expected = hmac.new(SECRET, payload.encode("utf-8"), hashlib.sha256).digest()[:12]
     given = base64.urlsafe_b64decode(mac_b64 + "=" * (-len(mac_b64) % 4))
     if not hmac.compare_digest(expected, given):
-        raise ValueError("handtekening klopt niet")
+        raise ValueError("File reference does not match")
     if int(expiry) < time.time():
-        raise ValueError("asset-id is verlopen")
+        raise ValueError("File reference has expired; fetch the list again")
     return owner, repo, int(asset_id)
 
 
@@ -189,7 +244,7 @@ def gh_get_json(path):
 def check_host(url):
     host = urllib.parse.urlparse(url).hostname or ""
     if host not in ALLOWED_HOSTS:
-        raise ValueError("host niet toegestaan: %s" % host)
+        raise ValueError("Host not allowed: %s" % host)
     return url
 
 
@@ -211,30 +266,44 @@ def build_releases(owner, repo, limit):
         "#STATUS OK",
         "#REPO %s/%s" % (field(owner, 64), field(repo, 64)),
     ]
+    # out_idx telt alleen de releases die we sturen; de client legt de
+    # bestanden aan de hand daarvan bij hun release. r_idx is de plaats in
+    # het antwoord van GitHub en dient alleen voor de broncode-zip.
+    out_idx = 0
     for r_idx, rel in enumerate(releases[:limit]):
         if rel.get("draft"):
             continue
         tag = field(rel.get("tag_name") or "", MAX_TAG)
         published = (rel.get("published_at") or rel.get("created_at") or "")[:10]
         date = field(published, MAX_DATE)
-        title = field(rel.get("name") or "", MAX_TITLE) or tag or "(naamloos)"
+        title = field(rel.get("name") or "", MAX_TITLE) or tag or "(untitled)"
         prerelease = 1 if rel.get("prerelease") else 0
-        lines.append("R\t%d\t%s\t%s\t%d\t%s" % (r_idx, tag, date, prerelease, title))
+        lines.append("R\t%d\t%s\t%s\t%d\t%s" % (out_idx, tag, date, prerelease, title))
 
-        assets = rel.get("assets") or []
-        for a_idx, asset in enumerate(assets[:MAX_ASSETS_PER_RELEASE]):
-            name = field(asset.get("name") or "", MAX_NAME) or ("asset-%d" % a_idx)
-            size = int(asset.get("size") or 0)
-            path = "/v1/asset?id=" + sign_asset(owner, repo, int(asset["id"]))
-            lines.append("A\t%d\t%d\t%s\t%d\t%s" % (r_idx, a_idx, name, size, path))
+        items = []
+        for asset in rel.get("assets") or []:
+            name = field(asset.get("name") or "", MAX_NAME) or "asset-%d" % len(items)
+            items.append((name, int(asset.get("size") or 0), int(asset["id"])))
+        kept, skipped = select_assets(items)
 
-        # Broncode-tarball als er geen bijgevoegde bestanden zijn: dan valt er
-        # tenminste iets te downloaden in plaats van een lege lijst.
-        if not assets and rel.get("zipball_url"):
-            lines.append("A\t%d\t0\t%s\t0\t%s" % (
-                r_idx,
-                field("%s-source.zip" % tag, MAX_NAME),
-                "/v1/asset?id=" + sign_asset(owner, repo, -1 - r_idx)))
+        for a_idx, (name, size, asset_id) in enumerate(kept):
+            path = "/v1/asset?id=" + sign_asset(owner, repo, asset_id)
+            lines.append("A\t%d\t%d\t%s\t%d\t%s" % (out_idx, a_idx, name, size, path))
+
+        # De broncode-zip die GitHub bij elke release aanbiedt, als laatste
+        # en alleen als er plek is. Grootte 0: die is vooraf niet bekend.
+        if rel.get("zipball_url"):
+            if len(kept) < MAX_ASSETS_PER_RELEASE:
+                lines.append("A\t%d\t%d\t%s\t0\t%s" % (
+                    out_idx, len(kept),
+                    field(source_name(rel["zipball_url"], tag), MAX_NAME),
+                    "/v1/asset?id=" + sign_asset(owner, repo, -1 - r_idx)))
+            else:
+                skipped += 1
+
+        if skipped:
+            lines.append("#MORE %d %d" % (out_idx, skipped))
+        out_idx += 1
 
     lines.append("#END")
     return "\n".join(lines) + "\n"
@@ -253,14 +322,14 @@ def cached_releases(owner, repo, limit):
         ttl = CACHE_TTL
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
-            body = build_error(404, "Repository niet gevonden")
+            body = build_error(404, "Repository not found")
         elif exc.code == 403:
-            body = build_error(403, "GitHub rate limit bereikt")
+            body = build_error(403, "GitHub rate limit reached")
         else:
-            body = build_error(exc.code, "GitHub gaf een fout")
+            body = build_error(exc.code, "GitHub returned an error")
         ttl = 60  # korte negatieve cache, anders is de rate limit zo op
     except Exception as exc:
-        return build_error(502, "Kan GitHub niet bereiken: %s" % exc)
+        return build_error(502, "Cannot reach GitHub: %s" % exc)
 
     with _cache_lock:
         _cache[key] = (now + ttl, body)
@@ -309,17 +378,17 @@ class Handler(BaseHTTPRequestHandler):
         elif route == "/v1/asset":
             self.route_asset(query)
         else:
-            self.send_text(build_error(404, "Onbekend endpoint"), status=404)
+            self.send_text(build_error(404, "Unknown endpoint"), status=404)
 
     def route_releases(self, query):
         repo_arg = (query.get("repo") or [""])[0].strip().strip("/")
         parts = repo_arg.split("/")
         if len(parts) != 2 or not all(parts):
-            self.send_text(build_error(400, "Verwacht repo=owner/naam"), status=400)
+            self.send_text(build_error(400, "Expected repo=owner/name"), status=400)
             return
         owner, repo = parts
         if not all(c.isalnum() or c in "-._" for c in owner + repo):
-            self.send_text(build_error(400, "Ongeldige repo-naam"), status=400)
+            self.send_text(build_error(400, "Invalid repository name"), status=400)
             return
         try:
             limit = max(1, min(int((query.get("max") or ["15"])[0]), MAX_RELEASES))
@@ -338,11 +407,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             url = self.resolve_asset_url(owner, repo, asset_id)
         except urllib.error.HTTPError as exc:
-            self.send_text(build_error(exc.code, "GitHub weigerde de asset"),
+            self.send_text(build_error(exc.code, "GitHub refused the file"),
                            status=502)
             return
         except Exception as exc:
-            self.send_text(build_error(502, "Kan asset niet opvragen: %s" % exc),
+            self.send_text(build_error(502, "Cannot request the file: %s" % exc),
                            status=502)
             return
 
@@ -376,13 +445,13 @@ class Handler(BaseHTTPRequestHandler):
         try:
             upstream = _plain_opener.open(req, timeout=60)
         except Exception as exc:
-            self.send_text(build_error(502, "Download mislukt: %s" % exc), status=502)
+            self.send_text(build_error(502, "Download failed: %s" % exc), status=502)
             return
 
         with upstream:
             length = upstream.headers.get("Content-Length")
             if length and int(length) > MAX_ASSET:
-                self.send_text(build_error(413, "Bestand te groot"), status=413)
+                self.send_text(build_error(413, "File too large"), status=413)
                 return
 
             self.send_response(200)

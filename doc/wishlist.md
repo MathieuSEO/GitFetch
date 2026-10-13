@@ -1,6 +1,6 @@
 # Wishlist
 
-Ideas worth considering that did not go into 0.1. Kept separate on
+Ideas worth considering that did not go into 0.1 or 0.2. Kept separate on
 purpose: the program has to stay small. On an Amiga with 2 MB every
 kilobyte counts, and a feature nobody uses still costs memory for
 everyone.
@@ -27,6 +27,35 @@ Cost: a few lines, no meaningful bytes. Does need a test round under
 emulation with OS 3.1 and the ClassAct classes; not everything could be
 confirmed in advance, in particular the menu and the double-click.
 
+**Running on a stock OS 2.04 to 3.1, with GadTools**
+The other route to older systems, and the one MintPRINT took: its
+settings program uses only GadTools (buttons, checkboxes, cycle gadgets,
+listviews, string and text gadgets), which every Amiga since 2.04 has in
+ROM. Nothing extra to install, unlike ClassAct.
+
+What GadTools lacks is what GitFetch leans on: a list with columns, a
+progress bar, a layout engine that follows the font, and a file requester
+button. Columns become fixed-width text in a listview, the bar is drawn by
+hand, the layout is computed from the font size, and the requester is a
+button that opens ASL. The full list of gadget kinds is in the NDK, in
+`libraries/gadtools.h` (`BUTTON_KIND` and friends).
+
+Cost: large. `gui.c` and `prefswin.c` (about 2000 lines) would be written
+again, or kept twice. Worth it only if the ClassAct route above turns out
+to leave people out who would otherwise use GitFetch.
+
+**A progress bar in the Herald notification**
+Herald can show a bar with Stop and Pause buttons for a running job. The
+bar alone is a matter of sending updates; the buttons send their command
+back to an ARexx port of the program's own, and GitFetch has none (see
+below). Cost: small for the bar, medium with the buttons.
+
+**Only one GitFetch at a time**
+`GitFetch owner/repo` from a browser now starts a second copy when one is
+already open. Handing the repository to the running one needs a public
+message port. Cost: small, but it would be the first step towards an
+ARexx port, which is listed below as deliberately left out.
+
 **Transfer speed while downloading (KB/s)**
 The numbers are already there: `sofar` and the start time. On a slow line
 there is no way to tell "slow" from "stuck", which worries people
@@ -45,6 +74,11 @@ arrive newest first. Cost: medium.
 Useful for releases with dozens of files, which is rare for Amiga
 software. Cost: medium.
 
+**More languages**
+English, Dutch and German since 0.2. Another language costs no line of code: copy
+`catalogs/nederlands.ct`, translate it, and `make catalogs` checks and
+builds it. Waiting for someone who wants to make one.
+
 ## Deliberately not
 
 **Unpacking and installing after the download**
@@ -62,9 +96,3 @@ the date and says so when it looks wrong.
 Customary on AmigaOS for scriptability, but it needs a command table, a
 port of its own, and documentation. At version 0.1 with a handful of users
 that does not weigh up against the size. Cost: large.
-
-**More languages**
-The groundwork is done: every string goes through `gf_str()` and
-`locale.library` is opened at startup. A translation is a catalog in
-`LOCALE:Catalogs/<language>/` and costs no line of code. Waiting for
-someone who wants to make one.

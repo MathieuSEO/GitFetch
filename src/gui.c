@@ -70,6 +70,8 @@
 #include "gfworker.h"
 #include "gfbookmarks.h"
 #include "gflocale.h"
+#include "gfassets.h"
+#include "gfnotify.h"
 
 /* --- library bases ------------------------------------------------------- */
 
@@ -246,15 +248,19 @@ static void set_status(struct GFApp *app, const char *text)
                        NULL, STRINGA_TextVal, (ULONG)text, TAG_END);
 }
 
+/* Het decimaalteken verschilt per taal; daarom staan de formaten in de
+   catalog. 'buf' moet 32 bytes zijn. Overal waar een vertaalde tekst als
+   formaat dient, staat snprintf: een te lange vertaling wordt dan
+   afgekapt in plaats van over de buffer heen geschreven. */
 static const char *size_text(ULONG bytes, char *buf)
 {
     if (bytes >= 1024UL * 1024UL)
-        sprintf(buf, "%lu,%lu MB", bytes / (1024UL * 1024UL),
+        snprintf(buf, 32, gf_str(MSG_SIZE_MB), bytes / (1024UL * 1024UL),
                 ((bytes % (1024UL * 1024UL)) * 10UL) / (1024UL * 1024UL));
     else if (bytes >= 1024UL)
-        sprintf(buf, "%lu KB", bytes / 1024UL);
+        snprintf(buf, 32, gf_str(MSG_SIZE_KB), bytes / 1024UL);
     else if (bytes > 0)
-        sprintf(buf, "%lu B", bytes);
+        snprintf(buf, 32, gf_str(MSG_SIZE_B), bytes);
     else
         strcpy(buf, "-");
     return buf;
@@ -346,13 +352,20 @@ static void fill_release_list(struct GFApp *app)
         char countbuf[24];
 
         /* Een lege kolom is verspilde ruimte; het aantal bestanden en een
-           prerelease-markering zijn allebei nuttig om te zien. */
+           prerelease-markering zijn allebei nuttig om te zien. De
+           broncode-zip telt niet mee: die heeft elke release. Een + zegt
+           dat er op GitHub meer staat dan hier past. */
         if (rel->nassets == 0)
-            strcpy(countbuf, "geen");
+            snprintf(countbuf, sizeof(countbuf), "%s", gf_str(MSG_FILES_NONE));
+        else if (gf_release_files(rel) == 0)
+            snprintf(countbuf, sizeof(countbuf), "%s",
+                     gf_str(MSG_FILES_SOURCE));
         else
-            sprintf(countbuf, "%ld", (long)rel->nassets);
+            sprintf(countbuf, "%ld%s", (long)gf_release_files(rel),
+                    rel->nskipped ? "+" : "");
         if (rel->prerelease)
-            strncat(countbuf, " (beta)", sizeof(countbuf) - strlen(countbuf) - 1);
+            strncat(countbuf, gf_str(MSG_BETA),
+                    sizeof(countbuf) - strlen(countbuf) - 1);
 
         node = AllocListBrowserNode(3,
             LBNA_Column,       0,
@@ -704,8 +717,8 @@ static void handle_worker_reply(struct GFApp *app)
                 } else if (app->list->nreleases == 1) {
                     set_status(app, gf_str(MSG_ONE_RELEASE));
                 } else {
-                    sprintf(count, gf_str(MSG_N_RELEASES),
-                            (long)app->list->nreleases);
+                    snprintf(count, sizeof(count), gf_str(MSG_N_RELEASES),
+                             (long)app->list->nreleases);
                     set_status(app, count);
                 }
             } else {
@@ -718,9 +731,15 @@ static void handle_worker_reply(struct GFApp *app)
                  */
                 char done[GF_MAX_NAME + sizeof(job->destdir) + 32];
 
-                sprintf(done, gf_str(MSG_DONE_SAVED), job->asset.name,
-                        job->destdir);
+                snprintf(done, sizeof(done), gf_str(MSG_DONE_SAVED),
+                         job->asset.name, job->destdir);
                 set_status(app, done);
+
+                if (app->prefs.notify) {
+                    snprintf(done, sizeof(done), gf_str(MSG_NOTIFY_SAVED),
+                             job->asset.name, job->destdir);
+                    gf_notify(FALSE, gf_str(MSG_NOTIFY_DONE), done);
+                }
             }
         } else {
             /* De proxy weet vaak preciezer wat er mis is dan onze eigen
@@ -731,10 +750,24 @@ static void handle_worker_reply(struct GFApp *app)
                         sizeof(status) - strlen(status) - 1);
             } else {
                 strcpy(status, gf_str(MSG_ERROR_PREFIX));
-                strncat(status, gf_strerror(job->result),
+                strncat(status, gf_error_str(job->result),
                         sizeof(status) - strlen(status) - 1);
             }
             set_status(app, status);
+
+            /* Stoppen deed je zelf; daar hoeft geen melding voor te komen. */
+            if (job->type == GFJOB_DOWNLOAD && app->prefs.notify &&
+                job->result != GF_ERR_ABORTED) {
+                char text[GF_MAX_NAME + GF_MAX_ERR + 4];
+
+                strcpy(text, job->asset.name);
+                strcat(text, ": ");
+                strncat(text, gf_last_server_message()[0]
+                                  ? gf_last_server_message()
+                                  : gf_error_str(job->result),
+                        sizeof(text) - strlen(text) - 1);
+                gf_notify(TRUE, gf_str(MSG_NOTIFY_FAILED), text);
+            }
 
             if (job->type == GFJOB_FETCH) {
                 /*
@@ -1352,7 +1385,7 @@ static void show_about(struct GFApp *app)
     es.es_GadgetFormat = (STRPTR)gf_str(MSG_ABOUT_CLOSE);
 
     EasyRequest(app->window, &es, NULL,
-                (ULONG)GF_VERSION,
+                (ULONG)GF_VERSION, (ULONG)GF_DATE,
                 (ULONG)(app->prefs.backend == GF_BACKEND_NATIVE
                         ? gf_str(MSG_VIA_NATIVE)
                         : gf_str(MSG_VIA_PROXY)));
@@ -1433,10 +1466,19 @@ static void handle_window_input(struct GFApp *app)
 
                     rel = &app->list->releases[app->selected_release];
                     if (rel->nassets == 0) {
-                        sprintf(msg, gf_str(MSG_RELEASE_NO_FILES), rel->tag);
+                        snprintf(msg, sizeof(msg),
+                                 gf_str(MSG_RELEASE_NO_FILES), rel->tag);
+                    } else if (gf_release_files(rel) == 0) {
+                        snprintf(msg, sizeof(msg),
+                                 gf_str(MSG_RELEASE_SOURCE_ONLY), rel->tag);
+                    } else if (rel->nskipped) {
+                        snprintf(msg, sizeof(msg),
+                                 gf_str(MSG_RELEASE_FILES_MORE), rel->tag,
+                                 (long)gf_release_files(rel),
+                                 (long)rel->nskipped);
                     } else {
-                        sprintf(msg, gf_str(MSG_RELEASE_FILES),
-                                rel->tag, (long)rel->nassets);
+                        snprintf(msg, sizeof(msg), gf_str(MSG_RELEASE_FILES),
+                                 rel->tag, (long)gf_release_files(rel));
                     }
                     set_status(app, msg);
                 }
@@ -1586,7 +1628,7 @@ static void close_classes(void)
     }
 }
 
-LONG gf_gui_run(struct GFPrefs *prefs)
+LONG gf_gui_run(struct GFPrefs *prefs, const char *initial_repo)
 {
     struct GFApp *app;
     ULONG winsig = 0, portsig, progsig, sigs;
@@ -1643,11 +1685,19 @@ LONG gf_gui_run(struct GFPrefs *prefs)
     progsig = 1UL << app->progress_signal;
 
     fill_mark_list(app);
+    gf_notify_open();
 
-    if (app->marks.count)
+    if (initial_repo && *initial_repo) {
+        /* "GitFetch owner/repo" vanuit de Shell, of vanuit het contextmenu
+           van een browser: meteen ophalen. */
+        SetGadgetAttrs((struct Gadget *)app->gadgets[GID_REPO], app->window,
+                       NULL, STRINGA_TextVal, (ULONG)initial_repo, TAG_END);
+        action_fetch(app);
+    } else if (app->marks.count) {
         set_status(app, gf_str(MSG_HINT_PICK));
-    else
+    } else {
         set_status(app, gf_str(MSG_HINT_TYPE));
+    }
 
     while (!app->done) {
         /* Bij het iconificeren wisselt het venster van signaal naar dat van
@@ -1697,6 +1747,7 @@ cleanup:
     }
     free_menu(app);
     close_classes();
+    gf_notify_close();
 
     if (app->progress_signal >= 0)
         FreeSignal(app->progress_signal);

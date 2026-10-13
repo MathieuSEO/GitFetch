@@ -146,6 +146,17 @@ static void handle_line(struct GFParser *p, char *line)
             copy_field(p->list->repo, line + 6, GF_MAX_REPO);
         } else if (strncmp(line, "#END", 4) == 0) {
             p->saw_end = TRUE;
+        } else if (strncmp(line, "#MORE ", 6) == 0) {
+            /* "#MORE <release> <aantal>": zoveel bestanden pasten niet. Net
+               als bij A-regels alleen voor de laatst gelezen release. */
+            char *rest = line + 6;
+            LONG idx = atol(rest);
+
+            while (*rest && *rest != ' ')
+                rest++;
+            if (p->list->nreleases > 0 &&
+                idx == (LONG)(p->list->nreleases - 1))
+                p->list->releases[idx].nskipped = (UWORD)atol(rest);
         }
         return;
     }

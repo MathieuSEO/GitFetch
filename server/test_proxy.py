@@ -51,18 +51,18 @@ def test_signing():
 
     # De handtekening moet elk veld dekken, niet alleen het geheel.
     expect_reject(lambda: gp.verify_asset(token[:-4] + "aaaa"),
-                  "geknoeide handtekening", "handtekening")
+                  "geknoeide handtekening", "does not match")
     expect_reject(lambda: gp.verify_asset(
         "%s/%s/99999/%s.%s" % (owner, repo, expiry, mac)), "aangepast asset-id")
     expect_reject(lambda: gp.verify_asset(
         "%s/andere/%s/%s.%s" % (owner, asset_id, expiry, mac)), "aangepaste repo")
-    expect_reject(lambda: gp.verify_asset("onzin"), "onzin-id", "ongeldig")
+    expect_reject(lambda: gp.verify_asset("onzin"), "onzin-id", "Invalid")
 
     original_ttl = gp.LINK_TTL
     gp.LINK_TTL = -10
     stale = gp.sign_asset("a", "b", 1)
     gp.LINK_TTL = original_ttl
-    expect_reject(lambda: gp.verify_asset(stale), "verlopen id", "verlopen")
+    expect_reject(lambda: gp.verify_asset(stale), "verlopen id", "expired")
 
     gp.SECRET = b"andere-sleutel"
     expect_reject(lambda: gp.verify_asset(token), "id van een andere sleutel")
@@ -118,10 +118,68 @@ def test_text():
 
 def test_error_format():
     print("foutformaat")
-    body = gp.build_error(404, "Repository niet gevonden")
+    body = gp.build_error(404, "Repository not found")
     check(body.startswith("#GITFETCH 1\n"), "begint met de protocolregel")
-    check("#STATUS ERR 404 Repository niet gevonden" in body, "status-regel")
+    check("#STATUS ERR 404 Repository not found" in body, "status-regel")
     check(body.endswith("#END\n"), "eindigt met #END")
+
+
+def test_selection():
+    print("keuze van de bestanden")
+    names = ["win-%d.exe" % i for i in range(11)] + ["a.lha", "b.lzx", "c.ADF"]
+    kept, skipped = gp.select_assets([(n,) for n in names])
+    got = [k[0] for k in kept]
+    check(len(got) == 12 and skipped == 2, "12 bewaard, 2 afgevallen (%d)" % skipped)
+    check(got[-3:] == ["a.lha", "b.lzx", "c.ADF"],
+          "archieven verdringen de rest, in hun eigen volgorde: %r" % got[-3:])
+    check(got[:9] == names[:9], "de voorste bestanden blijven staan")
+
+    kept, skipped = gp.select_assets([("x-%d.lha" % i,) for i in range(14)])
+    check([k[0] for k in kept] == ["x-%d.lha" % i for i in range(12)] and skipped == 2,
+          "bij gelijke rang wint wat eerst kwam")
+
+    url = "https://api.github.com/repos/Vesuri/aloneinthedark/zipball/0.91"
+    check(gp.source_name(url, "0.91") == "aloneinthedark-0.91-source.zip",
+          "naam broncode-zip: %s" % gp.source_name(url, "0.91"))
+    long_name = gp.source_name(url.replace("aloneinthedark", "r" * 80), "v" * 31)
+    check(len(long_name) == gp.MAX_NAME and long_name.endswith("v" * 31 + "-source.zip"),
+          "lange naam ingekort, tag blijft heel: %s" % long_name)
+
+
+def test_build_releases():
+    print("releaselijst")
+    def asset(i, name):
+        return {"id": i, "name": name, "size": 100 + i}
+    def zipball(tag):
+        return "https://api.github.com/repos/Own/Repo/zipball/%s" % tag
+    fake = [
+        {"draft": True, "tag_name": "concept", "assets": [], "zipball_url": zipball("c")},
+        {"tag_name": "2.0", "name": "Twee", "published_at": "2026-10-10T10:00:00Z",
+         "assets": [asset(i, "pkg-%d.deb" % i) for i in range(12)] + [asset(99, "Repo.lha")],
+         "zipball_url": zipball("2.0")},
+        {"tag_name": "1.0", "name": "", "published_at": "2026-01-01T10:00:00Z",
+         "assets": [], "zipball_url": zipball("1.0")},
+    ]
+    original = gp.gh_get_json
+    gp.gh_get_json = lambda path: fake
+    try:
+        body = gp.build_releases("own", "repo", 25)
+    finally:
+        gp.gh_get_json = original
+    lines = body.splitlines()
+
+    r_lines = [l for l in lines if l.startswith("R\t")]
+    check([l.split("\t")[1] for l in r_lines] == ["0", "1"],
+          "concept overgeslagen, indexen doorlopend: %r" % r_lines)
+    a2 = [l.split("\t") for l in lines if l.startswith("A\t0\t")]
+    check(len(a2) == 12 and a2[-1][3] == "Repo.lha",
+          "lha verdringt een .deb in een volle release")
+    check("#MORE 0 2" in lines, "#MORE telt het .deb-bestand en de broncode-zip")
+    a1 = [l.split("\t") for l in lines if l.startswith("A\t1\t")]
+    check(len(a1) == 1 and a1[0][3] == "Repo-1.0-source.zip" and a1[0][4] == "0",
+          "release zonder bestanden krijgt de broncode-zip: %r" % a1)
+    check(not any(l.startswith("#MORE 1") for l in lines), "geen #MORE zonder reden")
+    check(lines[-1] == "#END", "eindigt met #END")
 
 
 if __name__ == "__main__":
@@ -129,6 +187,8 @@ if __name__ == "__main__":
     test_allowlist()
     test_text()
     test_error_format()
+    test_selection()
+    test_build_releases()
     if failures:
         print("\n%d controle(s) mislukt" % len(failures))
         sys.exit(1)

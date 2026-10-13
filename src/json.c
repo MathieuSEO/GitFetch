@@ -27,6 +27,7 @@
 
 #include "gitfetch.h"
 #include "gfjson.h"
+#include "gfassets.h"
 
 /* --- tekstconversie ------------------------------------------------------ */
 
@@ -98,7 +99,8 @@ static BOOL want_value(struct GFJson *j)
     if (j->depth == 2)
         return (BOOL)(key_is(j, "tag_name") || key_is(j, "name") ||
                       key_is(j, "published_at") || key_is(j, "created_at") ||
-                      key_is(j, "prerelease") || key_is(j, "draft"));
+                      key_is(j, "prerelease") || key_is(j, "draft") ||
+                      key_is(j, "zipball_url"));
 
     if (j->in_assets && j->depth == j->assets_depth + 1)
         return (BOOL)(key_is(j, "name") || key_is(j, "size") ||
@@ -126,7 +128,47 @@ static void store_release_field(struct GFJson *j)
         rel->prerelease = (UWORD)(strcmp(j->val, "true") == 0 ? 1 : 0);
     } else if (key_is(j, "draft")) {
         j->release_is_draft = (BOOL)(strcmp(j->val, "true") == 0);
+    } else if (key_is(j, "zipball_url")) {
+        copy_field(j->zip_url, j->val, GF_MAX_PATH);
     }
+}
+
+/*
+ * Zet de broncode-zip achteraan, zoals GitHub hem op de releasepagina
+ * toont. De naam van de repository halen we uit de URL zelf
+ * (.../repos/owner/naam/zipball/tag), dan hoeft de parser niet te weten
+ * wat er opgevraagd werd.
+ */
+static void add_source_zip(struct GFJson *j)
+{
+    struct Release *rel = j->cur_release;
+    struct Asset *asset;
+    char repo[GF_MAX_REPO];
+    const char *start, *end;
+    LONG len = 0;
+
+    if (!j->zip_url[0])
+        return;
+    if (rel->nassets >= GF_MAX_ASSETS) {
+        rel->nskipped++;
+        return;
+    }
+
+    start = strstr(j->zip_url, "/repos/");
+    end = strstr(j->zip_url, "/zipball/");
+    if (start && end && end > start + 7) {
+        start += 7;
+        len = (LONG)(end - start);
+        if (len > GF_MAX_REPO - 1)
+            len = GF_MAX_REPO - 1;
+        memcpy(repo, start, len);
+    }
+    repo[len] = '\0';
+
+    asset = &rel->assets[rel->nassets++];
+    memset(asset, 0, sizeof(*asset));
+    gf_source_name(repo, rel->tag, asset->name);
+    copy_field(asset->path, j->zip_url, GF_MAX_PATH);
 }
 
 static void store_asset_field(struct GFJson *j)
@@ -178,16 +220,19 @@ static void open_brace(struct GFJson *j)
         }
         j->release_is_draft = FALSE;
         j->in_assets = FALSE;
+        j->zip_url[0] = '\0';
     } else if (j->in_assets && j->depth == j->assets_depth + 1) {
-        /* Nieuwe asset binnen de huidige release. */
-        if (j->cur_release && j->cur_release->nassets < GF_MAX_ASSETS) {
-            j->cur_asset = &j->cur_release->assets[j->cur_release->nassets];
-            memset(j->cur_asset, 0, sizeof(struct Asset));
-        } else {
+        /* Nieuwe asset binnen de huidige release; zit die vol, dan in de
+           reserveplek, zodat hij een minder belangrijk bestand kan
+           verdringen. */
+        if (!j->cur_release)
             j->cur_asset = NULL;
-            if (j->cur_release)
-                j->dropped++;
-        }
+        else if (j->cur_release->nassets < GF_MAX_ASSETS)
+            j->cur_asset = &j->cur_release->assets[j->cur_release->nassets];
+        else
+            j->cur_asset = &j->spare;
+        if (j->cur_asset)
+            memset(j->cur_asset, 0, sizeof(struct Asset));
     }
 }
 
@@ -199,13 +244,18 @@ static void close_brace(struct GFJson *j)
             if (!j->cur_release->title[0])
                 copy_field(j->cur_release->title, j->cur_release->tag,
                            GF_MAX_TITLE);
+            add_source_zip(j);
             j->list->nreleases++;
         }
         j->cur_release = NULL;
     } else if (j->in_assets && j->depth == j->assets_depth + 1) {
         /* Asset afgerond; zonder naam of URL valt er niets te downloaden. */
-        if (j->cur_asset && j->cur_asset->name[0] && j->cur_asset->path[0])
-            j->cur_release->nassets++;
+        if (j->cur_asset && j->cur_asset->name[0] && j->cur_asset->path[0]) {
+            if (j->cur_asset == &j->spare)
+                gf_asset_offer(j->cur_release, &j->spare);
+            else
+                j->cur_release->nassets++;
+        }
         j->cur_asset = NULL;
     }
 

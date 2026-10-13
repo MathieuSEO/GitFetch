@@ -64,7 +64,8 @@ struct ClassRef {
     CONST_STRPTR   name;
 };
 
-LONG gf_gui_run(struct GFPrefs *prefs);
+/* initial_repo: een repository om meteen op te halen, of NULL. */
+LONG gf_gui_run(struct GFPrefs *prefs, const char *initial_repo);
 BOOL gf_prefs_window(struct GFApp *app);
 
 /* Bewaart alleen de vensterplaats; wordt bij het afsluiten aangeroepen,

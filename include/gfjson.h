@@ -47,7 +47,14 @@ struct GFJson {
     struct Asset   *cur_asset;
     BOOL   release_is_draft;
 
-    LONG   dropped;         /* overgeslagen releases/assets door ruimtegebrek */
+    /* Een bestand voor een release die al vol zit, wordt hier opgebouwd;
+       pas als het compleet is, blijkt of het een ander mag verdringen. */
+    struct Asset    spare;
+
+    /* De broncode-zip; "zipball_url" komt in de JSON na de assets. */
+    char   zip_url[GF_MAX_PATH];
+
+    LONG   dropped;         /* overgeslagen releases door ruimtegebrek */
 };
 
 void gf_json_init(struct GFJson *j, struct ReleaseList *list);

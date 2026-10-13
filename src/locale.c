@@ -106,7 +106,7 @@ static const char *builtin[MSG_LAST] = {
 
     /* informatievenster */
     "About GitFetch",
-    "GitFetch %s (25-08-2026)\n"
+    "GitFetch %s (%s)\n"
         "Fetch releases from GitHub on AmigaOS\n\n"
         "by Mathieu Burgerhout\n\n"
         "With thanks to:\n"
@@ -120,7 +120,50 @@ static const char *builtin[MSG_LAST] = {
         "Connection: %s",
     "Close",
     "directly via AmiSSL",
-    "through the proxy"
+    "through the proxy",
+
+    /* bestandenlijst */
+    "none",
+    "source",
+    " (beta)",
+    "Release %s has no ready-made files, only its source code.",
+    "Release %s: %ld file(s) shown, %ld more on GitHub.",
+    "%lu.%lu MB",
+    "%lu KB",
+    "%lu B",
+
+    /* notificaties */
+    "Downloaded",
+    "Failed",
+    "%s saved in %s",
+    "_Notify when a download finishes",
+
+    /* foutmeldingen */
+    "Out of memory",
+    "Cannot open bsdsocket.library (is the TCP/IP stack running?)",
+    "Server name not found",
+    "Cannot connect to the server",
+    "Sending failed",
+    "Connection lost or timed out",
+    "The server returned an error",
+    "Unexpected reply from the server",
+    "The proxy reported an error",
+    "Aborted",
+    "Cannot write the file",
+    "Cannot make sense of that repository",
+    "AmiSSL 5 is required for a direct connection to GitHub",
+    "The Amiga clock is wrong",
+    "Unknown error",
+
+    /* rechtstreekse verbinding */
+    "bsdsocket.library is not open",
+    "The Amiga's date is before 2020, so certificates look not yet valid. "
+        "Set the clock, for example: date 21-aug-26 12:00:00",
+    "amisslmaster.library not found; is AmiSSL 5 installed?",
+    "Cannot initialise AmiSSL",
+    "Cannot create a TLS context",
+    "Note: no CA bundle found, certificate not checked",
+    "No answer from GitHub (network, DNS or clock?)"
 };
 
 /*
@@ -131,14 +174,19 @@ static const char *builtin[MSG_LAST] = {
 extern int gf_locale_table_size_check[
     (sizeof(builtin) / sizeof(builtin[0]) == MSG_LAST) ? 1 : -1];
 
-void gf_locale_open(void)
+void gf_locale_open(const char *language)
 {
     LocaleBase = (struct LocaleBase *)OpenLibrary("locale.library", 38);
     if (!LocaleBase)
         return;             /* OS 2.0 of ouder; blijft Engels */
 
+    /* OC_Language met NULL betekent: volg de systeeminstelling. Een
+       expliciete taal maakt het mogelijk GitFetch in het Nederlands te
+       draaien op een verder Engels systeem, of andersom. */
     catalog = OpenCatalog(NULL, (STRPTR)"GitFetch.catalog",
                           OC_BuiltInLanguage, (ULONG)"english",
+                          OC_Language, (ULONG)(language && *language
+                                               ? language : NULL),
                           OC_Version, 0,
                           TAG_END);
 }
@@ -153,6 +201,16 @@ void gf_locale_close(void)
         CloseLibrary((struct Library *)LocaleBase);
         LocaleBase = NULL;
     }
+}
+
+const char *gf_error_str(LONG code)
+{
+    /* De GF_ERR_-codes lopen van -1 tot en met -14, net als de teksten. */
+    if (code <= GF_ERR_NOMEM && code >= GF_ERR_CLOCK)
+        return gf_str((UWORD)(MSG_ERR_NOMEM + (GF_ERR_NOMEM - code)));
+    if (code == GF_OK)
+        return "";
+    return gf_str(MSG_ERR_UNKNOWN);
 }
 
 const char *gf_str(UWORD id)

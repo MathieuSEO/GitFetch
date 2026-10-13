@@ -29,7 +29,28 @@ R<TAB>1<TAB>5.26<TAB>2026-01-28<TAB>0<TAB>AmiSSL 5.26
 
 Lines starting with `#` are control lines. Assets must follow their own
 `R` line directly; an `A` whose release index does not match the last
-release read is ignored rather than attached to the wrong release.
+release read is ignored rather than attached to the wrong release. The
+release index counts the `R` lines sent, so it has no gaps when a draft
+is left out.
+
+A release has at most 12 `A` lines (`GF_MAX_ASSETS`). When GitHub lists
+more, archive and disk formats (`.lha .lzh .lzx .zip .adf .adz .dms .hdf
+.7z .tar.gz .tgz`) push other files out, keeping the order of the rest;
+the rules are in `src/assets.c` and `select_assets()` in the proxy, and
+`test-json` checks that both agree. How many did not fit follows the last
+`A` line:
+
+```
+#MORE 0 12
+```
+
+Clients before 0.2 ignore it, like any `#` line they do not know.
+
+The last `A` line of a release is the source code zip GitHub offers with
+every release, named `<repo>-<tag>-source.zip` with size 0 (unknown in
+advance), if there is room for it. Its id refers to the release rather
+than to an asset; the proxy looks up the `zipball_url` when it is asked
+for.
 
 Error:
 

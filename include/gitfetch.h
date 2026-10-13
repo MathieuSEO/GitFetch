@@ -12,6 +12,7 @@
 #include <exec/types.h>
 
 #define GF_VERSION      "0.2"
+#define GF_DATE         "11.10.2026"   /* $VER:-vorm: d.m.jjjj */
 #define GF_PROTO        1
 
 #define GF_MAX_TAG      32      /* proxy kapt af op 31 + NUL */
@@ -28,7 +29,8 @@
  * Twaalf bijlagen per release. Twintig kostte 114 KB aan gereserveerde
  * ruimte in een enkele AllocVec, en dat telt op een machine met 2 MB. De
  * praktijk zit ver onder dit getal: AmiSSL levert er drie per release,
- * MintPRINT een. Wie meer heeft, ziet de eerste twaalf.
+ * MintPRINT een. Heeft een release er meer, dan gaan de archief- en
+ * diskformaten voor (zie assets.c) en telt nskipped wat er afviel.
  */
 #define GF_MAX_ASSETS   12
 
@@ -44,6 +46,7 @@ struct Release {
     char  title[GF_MAX_TITLE];
     UWORD prerelease;
     UWORD nassets;
+    UWORD nskipped;     /* bestanden die niet meer in de lijst pasten */
     struct Asset assets[GF_MAX_ASSETS];
 };
 

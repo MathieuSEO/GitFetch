@@ -55,6 +55,8 @@ int main(int argc, char **argv)
         for (a = 0; a < rel->nassets; a++)
             printf("A|%s|%lu|%s\n", rel->assets[a].name,
                    (unsigned long)rel->assets[a].size, rel->assets[a].path);
+        if (rel->nskipped)
+            printf("S|%u\n", (unsigned)rel->nskipped);
     }
 
     free(list); free(j);

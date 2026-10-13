@@ -26,11 +26,12 @@
 #include "gfurl.h"
 
 
-/*
- * TLS vraagt veel meer stack dan een gemiddelde Shell meegeeft (vaak 4 KB).
- * AmigaDOS leest deze string uit de binary en past de stack aan.
- */
+/* Zie main.c: $STACK: voor OS 3.2 en 4, __stack voor de rest. */
 const char stack_size[] = "$STACK:65536";
+unsigned long __stack = 65536;
+
+/* Ook hier vastgehouden met -Wl,-u,_version_tag. */
+const char version_tag[] = "$VER: gftest " GF_VERSION " (" GF_DATE ")";
 
 static const char *size_text(ULONG bytes, char *buf)
 {

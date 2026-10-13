@@ -1,0 +1,215 @@
+## version $VER: GitFetch.catalog 0.2 (11.10.2026)
+## language deutsch
+## codeset 0
+;
+; Deutsche Texte für GitFetch. ISO-8859-1.
+; Prüfen und bauen: make catalogs
+;
+MSG_WINDOW_TITLE
+GitFetch
+MSG_SCREEN_TITLE
+GitFetch - Releases von GitHub holen
+MSG_MENU_PROJECT
+Projekt
+MSG_MENU_ABOUT
+Über...
+MSG_MENU_QUIT
+Beenden
+MSG_MENU_SETTINGS
+Einstellungen
+MSG_MENU_EDIT_SETTINGS
+Ändern...
+MSG_REPOSITORY
+Repository
+MSG_FETCH
+_Abrufen
+MSG_SAVE_MARK
+Merken
+MSG_FORGET_MARK
+Vergessen
+MSG_DELETE_MARK
+Entfernen
+MSG_DOWNLOAD
+_Herunterladen
+MSG_STOP
+_Stopp
+MSG_SAVE_IN
+Speichern in
+MSG_COL_SAVED
+Gemerkt
+MSG_COL_VERSION
+Version
+MSG_COL_DATE
+Datum
+MSG_COL_FILES
+Dateien
+MSG_COL_FILE
+Datei
+MSG_COL_SIZE
+Größe
+MSG_COUNT_NEWEST
+neueste
+MSG_COUNT_3
+letzte 3
+MSG_COUNT_5
+letzte 5
+MSG_COUNT_10
+letzte 10
+MSG_COUNT_ALL
+alle
+MSG_HINT_TYPE
+GitHub-Adresse oder Besitzer/Repo eingeben und Abrufen wählen.
+MSG_HINT_PICK
+Links ein gemerktes Repository wählen oder eine Adresse eingeben.
+MSG_HINT_DOUBLECLICK
+Doppelklicken oder Abrufen wählen.
+MSG_NEED_REPO
+Bitte zuerst ein Repository eingeben.
+MSG_BAD_REPO
+Daraus lässt sich kein Besitzer/Repo lesen.
+MSG_FETCHING
+Rufe ab: 
+MSG_NO_RELEASES
+Dieses Repository hat keine Releases.
+MSG_ONE_RELEASE
+1 Release. Rechts eine Datei wählen und Herunterladen drücken.
+MSG_N_RELEASES
+%ld Releases. Links eines wählen; die Dateien stehen rechts.
+MSG_RELEASE_NO_FILES
+Release %s hat keine Dateien.
+MSG_RELEASE_FILES
+Release %s: %ld Datei(en). Eine wählen und Herunterladen drücken.
+MSG_PICK_RELEASE
+Bitte zuerst ein Release wählen.
+MSG_PICK_FILE
+Bitte zuerst eine Datei aus der Liste wählen.
+MSG_DOWNLOADING
+Lade herunter: 
+MSG_DONE_SAVED
+Fertig: %s gespeichert in %s
+MSG_ABORTING
+Breche ab...
+MSG_ERROR_PREFIX
+Fehler: 
+MSG_SAVED_MARK
+Gemerkt: 
+MSG_UNSAVED_MARK
+Nicht mehr gemerkt: 
+MSG_MARK_EXISTS
+Das steht schon in der Liste.
+MSG_PICK_MARK
+Bitte zuerst ein gemerktes Repository wählen.
+MSG_MARK_REMOVED
+Aus der Liste entfernt.
+MSG_ENVARC_FAILED
+ (konnte nicht nach ENVARC: schreiben)
+MSG_NO_WORKER
+Der Netzwerkprozess lässt sich nicht starten.
+MSG_SETTINGS_CHANGED
+Einstellungen geändert.
+MSG_FILE_EXISTS
+%s gibt es schon in %s.\n\nSie ist %ld Bytes groß.\nÜberschreiben?
+MSG_OVERWRITE_GADGETS
+Überschreiben|Abbrechen
+MSG_DOWNLOAD_CANCELLED
+Download abgebrochen; die vorhandene Datei bleibt erhalten.
+MSG_RATE_LIMIT_HINT
+GitHub hat die Anfrage abgelehnt. Ohne Token sind 60 Anfragen pro Stunde erlaubt; später erneut versuchen oder den Proxy benutzen.
+MSG_NO_SPACE
+%s braucht %ld KB, auf dem Datenträger sind aber nur %ld KB frei.\n\nTrotzdem herunterladen?
+MSG_PREFS_TITLE
+GitFetch-Einstellungen
+MSG_PREFS_NATIVE
+_Direkt mit GitHub verbinden (AmiSSL)
+MSG_PREFS_VERIFY
+_Zertifikat prüfen
+MSG_PREFS_HOST
+Proxy-Adresse
+MSG_PREFS_PORT
+Port
+MSG_PREFS_COUNT
+Releases abrufen
+MSG_PREFS_SAVE
+_Speichern
+MSG_PREFS_USE
+Ben_utzen
+MSG_PREFS_CANCEL
+_Abbrechen
+MSG_ABOUT_TITLE
+Über GitFetch
+MSG_ABOUT_BODY
+GitFetch %s (%s)\nReleases von GitHub holen unter AmigaOS\n\nvon Mathieu Burgerhout\n\nDank an:\n  Jens Maus und alle hinter AmiSSL\n  Amiga Cafe - https://amiga.cafe\n  RVO, für mein Amiga-Revival\n  Darren Banfi, dessen Mint-Projekte der Anfang waren\n  und alle (Vibe-)Coder, die unsere alte\n  Freundin am Leben halten\n\n(c) 2026 Mathieu Burgerhout\n\nVerbindung: %s
+MSG_ABOUT_CLOSE
+Schließen
+MSG_VIA_NATIVE
+direkt über AmiSSL
+MSG_VIA_PROXY
+über den Proxy
+MSG_FILES_NONE
+keine
+MSG_FILES_SOURCE
+Quellcode
+MSG_BETA
+ (Beta)
+MSG_RELEASE_SOURCE_ONLY
+Release %s hat keine fertigen Dateien, nur den Quellcode.
+MSG_RELEASE_FILES_MORE
+Release %s: %ld Datei(en) angezeigt, %ld weitere auf GitHub.
+MSG_SIZE_MB
+%lu,%lu MB
+MSG_SIZE_KB
+%lu KB
+MSG_SIZE_B
+%lu B
+MSG_NOTIFY_DONE
+Geladen
+MSG_NOTIFY_FAILED
+Fehlgeschlagen
+MSG_NOTIFY_SAVED
+%s gespeichert in %s
+MSG_PREFS_NOTIFY
+_Melden, wenn ein Download fertig ist
+MSG_ERR_NOMEM
+Nicht genug Speicher
+MSG_ERR_SOCKET
+bsdsocket.library lässt sich nicht öffnen (läuft der TCP/IP-Stack?)
+MSG_ERR_DNS
+Servername nicht gefunden
+MSG_ERR_CONNECT
+Keine Verbindung zum Server
+MSG_ERR_SEND
+Senden fehlgeschlagen
+MSG_ERR_RECV
+Verbindung unterbrochen oder Zeitüberschreitung
+MSG_ERR_HTTP
+Der Server meldete einen Fehler
+MSG_ERR_PROTO
+Unerwartete Antwort vom Server
+MSG_ERR_SERVER
+Der Proxy meldete einen Fehler
+MSG_ERR_ABORTED
+Abgebrochen
+MSG_ERR_FILE
+Die Datei lässt sich nicht schreiben
+MSG_ERR_URL
+Mit diesem Repository ist nichts anzufangen
+MSG_ERR_TLS
+Für eine direkte Verbindung mit GitHub wird AmiSSL 5 benötigt
+MSG_ERR_CLOCK
+Die Uhr des Amiga geht falsch
+MSG_ERR_UNKNOWN
+Unbekannter Fehler
+MSG_TLS_NO_SOCKET
+bsdsocket.library ist nicht geöffnet
+MSG_TLS_CLOCK
+Das Datum des Amiga liegt vor 2020, daher scheinen Zertifikate noch nicht gültig. Uhr stellen, zum Beispiel: date 21-aug-26 12:00:00
+MSG_TLS_NO_AMISSL
+amisslmaster.library nicht gefunden; ist AmiSSL 5 installiert?
+MSG_TLS_INIT
+AmiSSL lässt sich nicht starten
+MSG_TLS_CONTEXT
+Kein TLS-Kontext möglich
+MSG_TLS_NO_CA
+Hinweis: kein CA-Bundle gefunden, Zertifikat nicht geprüft
+MSG_TLS_NO_ANSWER
+Keine Antwort von GitHub (Netzwerk, DNS oder Uhr?)

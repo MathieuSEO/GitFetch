@@ -25,6 +25,22 @@ It downloads, and nothing else. Unpacking and installing stay in your own
 hands, with the tools you already trust.
 
 
+WHAT'S NEW IN 0.2
+
+  - the window reopens where you left it, and the button beside
+    "Save in" works (both reported by yelworC on amiga-news.de)
+  - give a repository on the command line, GitFetch owner/repo, and it
+    is fetched straight away; handy from a browser's link menu
+  - pop-up notifications through Herald, Ranchero or Ringhio when a
+    download finishes or fails
+  - Dutch and German translations; every message can now be translated
+  - the source code zip of each release is offered on a direct
+    connection too
+  - releases with more than twelve files keep their Amiga archives and
+    say how many more there are on GitHub
+  - a large enough stack on every AmigaOS version
+
+
 WHAT IT DOES
 
   - a ReAction window with three lists: repositories you have saved,
@@ -45,7 +61,14 @@ WHAT IT DOES
   - checks the system clock before connecting, because a wrong date makes
     TLS fail in a way that says nothing about dates
   - remembers where you left the window
-  - English interface, ready for translation through locale catalogs
+  - every file of a release is listed, whatever its type; when there
+    are more than twelve, .lha, .lzx, .zip, .adf and friends go first
+  - the source code zip GitHub offers with each release is in the list
+  - start it with a repository from the Shell or a browser:
+    GitFetch boingball/mintprint
+  - notifications through Herald, Ranchero or Ringhio, if one runs
+  - English, Dutch and German, chosen by Locale prefs or the LANGUAGE
+    tooltype; more languages need only a catalog
 
 
 TWO WAYS TO REACH GITHUB WITH GITFETCH
@@ -93,6 +116,8 @@ program such as the NTP client built into Roadshow.
 If you would rather not deal with AmiSSL or the clock at all, the included
 proxy needs neither.
 
+Reported working on AmigaOS 3.2, 3.9 and 4.1, on AmiKit and on PiStorm32.
+
 
 INSTALLING
 
@@ -112,7 +137,11 @@ Full documentation is in GitFetch.guide; open it with MultiView.
 
 KNOWN BUGS
 
-None yet. If you find one, please report it with your AmigaOS version,
+None known. One limitation: the progress bar stays at 0% while the
+source code zip downloads, because GitHub does not say in advance how
+large that zip will be. The download itself is fine.
+
+If you find a bug, please report it with your AmigaOS version,
 your TCP/IP stack, and whether you were using a direct connection or the
 proxy. Those three narrow it down considerably.
 

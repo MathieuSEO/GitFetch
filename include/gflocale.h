@@ -6,8 +6,9 @@
  * locale.library laadt op grond van de voorkeuren van de gebruiker.
  * Ontbreekt de catalog, dan werkt het programma gewoon in het Engels.
  *
- * Nieuwe tekst toevoegen: een id hieronder erbij, de Engelse tekst in de
- * tabel in locale.c, en de vertaling in catalogs/nederlands.ct.
+ * Nieuwe tekst toevoegen: een id onderaan de lijst hieronder, de Engelse
+ * tekst op dezelfde plaats in de tabel in locale.c, en de vertaling in
+ * catalogs/nederlands.ct. "make catalogs" controleert of alles klopt.
  */
 
 #ifndef GFLOCALE_H
@@ -100,15 +101,68 @@ enum {
     MSG_VIA_NATIVE,
     MSG_VIA_PROXY,
 
+    /*
+     * Hieronder alles wat er in 0.2 bij kwam. Nieuwe teksten komen steeds
+     * onderaan: de positie is het nummer in de catalog, en een bestaande
+     * vertaling klopt alleen zolang die nummers niet verschuiven.
+     */
+
+    /* bestandenlijst */
+    MSG_FILES_NONE,
+    MSG_FILES_SOURCE,
+    MSG_BETA,
+    MSG_RELEASE_SOURCE_ONLY,
+    MSG_RELEASE_FILES_MORE,
+    MSG_SIZE_MB,
+    MSG_SIZE_KB,
+    MSG_SIZE_B,
+
+    /* notificaties */
+    MSG_NOTIFY_DONE,
+    MSG_NOTIFY_FAILED,
+    MSG_NOTIFY_SAVED,
+    MSG_PREFS_NOTIFY,
+
+    /* foutmeldingen, in de volgorde van de GF_ERR_-codes (-1 t/m -14) */
+    MSG_ERR_NOMEM,
+    MSG_ERR_SOCKET,
+    MSG_ERR_DNS,
+    MSG_ERR_CONNECT,
+    MSG_ERR_SEND,
+    MSG_ERR_RECV,
+    MSG_ERR_HTTP,
+    MSG_ERR_PROTO,
+    MSG_ERR_SERVER,
+    MSG_ERR_ABORTED,
+    MSG_ERR_FILE,
+    MSG_ERR_URL,
+    MSG_ERR_TLS,
+    MSG_ERR_CLOCK,
+    MSG_ERR_UNKNOWN,
+
+    /* rechtstreekse verbinding */
+    MSG_TLS_NO_SOCKET,
+    MSG_TLS_CLOCK,
+    MSG_TLS_NO_AMISSL,
+    MSG_TLS_INIT,
+    MSG_TLS_CONTEXT,
+    MSG_TLS_NO_CA,
+    MSG_TLS_NO_ANSWER,
+
     MSG_LAST
 };
 
 /* Opent de catalog voor de ingestelde taal; zonder catalog blijft alles
-   Engels. Veilig om aan te roepen als locale.library ontbreekt. */
-void gf_locale_open(void);
+   Engels. Veilig om aan te roepen als locale.library ontbreekt. Met een
+   taalnaam ("nederlands") gaat die voor de systeeminstelling; NULL of
+   leeg volgt Prefs/Locale. */
+void gf_locale_open(const char *language);
 void gf_locale_close(void);
 
 /* De vertaalde tekst, of de ingebouwde Engelse als er geen catalog is. */
 const char *gf_str(UWORD id);
+
+/* gf_strerror() in de taal van de gebruiker. */
+const char *gf_error_str(LONG code);
 
 #endif /* GFLOCALE_H */

@@ -103,23 +103,19 @@ static LONG amissl_open(struct GFPrefs *prefs)
         return GF_OK;
 
     if (!SocketBase) {
-        gf_set_server_message("bsdsocket.library is niet open");
+        gf_set_server_message(gf_str(MSG_TLS_NO_SOCKET));
         return GF_ERR_SOCKET;
     }
 
     if (prefs->verify_cert && !clock_is_plausible()) {
-        gf_set_server_message("De datum van de Amiga staat voor 2020; "
-                              "certificaten lijken dan nog niet geldig. "
-                              "Zet de klok goed, bijvoorbeeld: "
-                              "date 21-aug-26 12:00:00");
+        gf_set_server_message(gf_str(MSG_TLS_CLOCK));
         return GF_ERR_CLOCK;
     }
 
     AmiSSLMasterBase = OpenLibrary("amisslmaster.library",
                                    AMISSLMASTER_MIN_VERSION);
     if (!AmiSSLMasterBase) {
-        gf_set_server_message("amisslmaster.library niet gevonden; "
-                              "is AmiSSL 5 geinstalleerd?");
+        gf_set_server_message(gf_str(MSG_TLS_NO_AMISSL));
         return GF_ERR_TLS;
     }
 
@@ -130,7 +126,7 @@ static LONG amissl_open(struct GFPrefs *prefs)
                        AmiSSL_SocketBase, (ULONG)SocketBase,
                        AmiSSL_ErrNoPtr, (ULONG)&errno,
                        TAG_DONE) != 0) {
-        gf_set_server_message("Kan AmiSSL niet initialiseren");
+        gf_set_server_message(gf_str(MSG_TLS_INIT));
         CloseLibrary(AmiSSLMasterBase);
         AmiSSLMasterBase = NULL;
         return GF_ERR_TLS;
@@ -138,7 +134,7 @@ static LONG amissl_open(struct GFPrefs *prefs)
 
     ssl_ctx = SSL_CTX_new(TLS_client_method());
     if (!ssl_ctx) {
-        gf_set_server_message("Kan geen TLS-context maken");
+        gf_set_server_message(gf_str(MSG_TLS_CONTEXT));
         CloseAmiSSL();
         CloseLibrary(AmiSSLMasterBase);
         AmiSSLMasterBase = NULL;
@@ -156,8 +152,7 @@ static LONG amissl_open(struct GFPrefs *prefs)
                verbinding weigeren zou hier onnodig streng zijn, maar de
                gebruiker hoort het te weten. */
             SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_NONE, NULL);
-            gf_set_server_message("Let op: geen CA-bundle gevonden, "
-                                  "certificaat niet gecontroleerd");
+            gf_set_server_message(gf_str(MSG_TLS_NO_CA));
         }
     } else {
         SSL_CTX_set_verify(ssl_ctx, SSL_VERIFY_NONE, NULL);
@@ -263,8 +258,7 @@ static LONG fetch_url(const char *url, const char *accept,
             else
                 gf_set_server_message(reason);
         } else {
-            gf_set_server_message("Geen antwoord van GitHub "
-                                  "(netwerk, DNS of klok?)");
+            gf_set_server_message(gf_str(MSG_TLS_NO_ANSWER));
         }
         ERR_clear_error();
         err = GF_ERR_CONNECT;
