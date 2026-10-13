@@ -354,7 +354,7 @@ the bottom of the window.
 
 @{b}Version history@{ub}
 
-@{b}0.2@{ub}  -  11 October 2026
+@{b}0.2@{ub}  -  13 October 2026
 
     - The window now really does reopen where you left it. It was saved
       correctly all along, but WINDOW_Position told window.class to centre

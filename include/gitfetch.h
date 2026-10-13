@@ -12,7 +12,7 @@
 #include <exec/types.h>
 
 #define GF_VERSION      "0.2"
-#define GF_DATE         "11.10.2026"   /* $VER:-vorm: d.m.jjjj */
+#define GF_DATE         "13.10.2026"   /* $VER:-vorm: d.m.jjjj */
 #define GF_PROTO        1
 
 #define GF_MAX_TAG      32      /* proxy kapt af op 31 + NUL */
